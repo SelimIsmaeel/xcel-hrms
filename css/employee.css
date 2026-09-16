@@ -1,0 +1,1172 @@
+/* ==========================================================================
+   XCELTECH — employee.css
+   Everything specific to the employee workspace: top-nav shell, Update
+   Profile module, leave application flow, payslip/payroll, and the
+   related responsive + print rules.
+   ========================================================================== */
+
+/* ---------- Update Profile (employee) ---------- */
+
+.uprof-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.uprof-nav {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uprof-nav button {
+  text-align: center;
+  border: none;
+  background: var(--blue-wash);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px 16px;
+  border-radius: var(--radius-sm);
+}
+
+.uprof-nav button:hover {
+  background: #DCE5F7;
+}
+
+.uprof-nav button.active {
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.uprof-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  position: relative;
+}
+
+.uprof-panel h2 {
+  font-size: 16.5px;
+  margin-bottom: 22px;
+}
+
+.uprof-list-card {
+  background: var(--blue-wash);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.uprof-list-card:hover {
+  border-color: var(--blue);
+}
+
+.uprof-list-card .name {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.uprof-list-card .meta {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.uprof-list-card .meta span+span::before {
+  content: "|";
+  margin: 0 8px;
+  color: var(--ink-faint);
+}
+
+.uprof-add-btn {
+  border: 1px dashed var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.uprof-add-btn:hover {
+  background: var(--blue-wash);
+}
+
+.uprof-empty {
+  color: var(--ink-faint);
+  font-size: 13.5px;
+  padding: 20px 4px;
+}
+
+.uprof-upload-row {
+  margin-bottom: 20px;
+}
+
+.uprof-upload-row .lbl {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.uprof-upload-row .row {
+  display: flex;
+  gap: 10px;
+}
+
+.uprof-upload-row input[type="text"] {
+  flex: 1;
+}
+
+.uprof-upload-row .btn.gold {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.uprof-upload-row .btn.gold:hover {
+  background: var(--gold-deep);
+}
+
+.uprof-personal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 0 6px;
+}
+
+.uprof-personal-card .big-avatar {
+  width: 110px;
+  height: 110px;
+  font-size: 38px;
+  margin-bottom: 18px;
+}
+
+.uprof-edit-btn {
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.uprof-edit-btn:hover {
+  color: var(--ink);
+}
+
+.uprof-personal-card .k {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-top: 24px;
+  margin-bottom: 4px;
+}
+
+.uprof-personal-card .v {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.uprof-personal-grid {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .uprof-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .uprof-panel {
+    padding: 22px 18px;
+  }
+
+  .uprof-personal-grid {
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+}
+
+/* ==========================================================================
+   Employee panel — top-nav shell (no sidebar)
+   ========================================================================== */
+
+.emp-shell {
+  min-height: 100vh;
+  background: var(--canvas);
+}
+
+.emp-topnav {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  height: 74px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-wrap: wrap;
+}
+
+/* .emp-topnav .mark {} */
+
+.emp-topnav .mark .image {
+  width: 200px;
+  height: 50px;
+}
+
+.emp-topnav .mark .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emp-tabs {
+  display: flex;
+  gap: 30px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.emp-tabs button {
+  border: none;
+  background: transparent;
+  padding: 10px 2px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+.emp-tabs button.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+}
+
+.emp-tabs button:hover:not(.active) {
+  color: var(--ink);
+}
+
+.emp-menu-toggle {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  padding: 0;
+}
+
+.emp-menu-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.emp-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.emp-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.emp-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.emp-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.emp-profile-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gold);
+  color: #1B2331;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.emp-profile-menu {
+  display: none;
+  position: absolute;
+  top: 52px;
+  right: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  min-width: 170px;
+  box-shadow: 0 10px 26px rgba(15, 25, 60, 0.14);
+  overflow: hidden;
+  z-index: 40;
+}
+
+.emp-profile-menu.open {
+  display: block;
+}
+
+.emp-profile-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 12px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.emp-profile-menu button:hover {
+  background: var(--line-soft);
+}
+
+.emp-profile-menu button.danger {
+  color: var(--red);
+}
+
+.emp-main {
+  padding: 26px 32px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* breadcrumb bar */
+.crumb-bar {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+
+.crumb-bar b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.crumb-bar .sep {
+  margin: 0 6px;
+  color: var(--ink-faint);
+}
+
+/* profile banner (dashboard) */
+.profile-banner {
+  background: linear-gradient(135deg, #17306E 0%, #1F3C88 100%);
+  border-radius: var(--radius);
+  padding: 26px 30px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.profile-banner .who-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-banner .avatar {
+  width: 66px;
+  height: 66px;
+  font-size: 22px;
+  background: var(--gold);
+  color: #1B2331;
+}
+
+.profile-banner .name {
+  color: #fff;
+  font-size: 22px;
+}
+
+.profile-banner .title {
+  color: #C7D1EC;
+  font-size: 13.5px;
+  margin-top: 3px;
+}
+
+.profile-banner .edit-btn {
+  background: var(--gold);
+  color: #1B2331;
+  border: none;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+/* quick actions */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.quick-actions button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 13px 20px;
+  border-radius: 30px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.quick-actions button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* dashboard progress card */
+.leave-progress-item {
+  margin-bottom: 16px;
+}
+
+.leave-progress-item:last-child {
+  margin-bottom: 0;
+}
+
+.leave-progress-item .lp-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+
+.leave-progress-item .lp-top .lbl {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.leave-progress-item .lp-top .val {
+  color: var(--ink-soft);
+}
+
+.leave-progress-bar {
+  height: 8px;
+  background: var(--line-soft);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.leave-progress-bar .fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 5px;
+}
+
+/* dropdown-style list items (to-dos, announcements) */
+.dd-list-item {
+  margin-bottom: 8px;
+}
+
+.dd-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.dd-list-item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.dd-list-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.dd-list-item summary .chev {
+  color: var(--ink-faint);
+  font-size: 12px;
+  transition: transform 0.15s;
+}
+
+.dd-list-item[open] summary .chev {
+  transform: rotate(180deg);
+}
+
+.dd-list-item .dd-body {
+  padding: 10px 14px 4px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+/* payslip table */
+.payroll-period-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.payroll-period-controls select {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+.payslip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.payslip-table th {
+  text-align: left;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 11.5px;
+  padding: 8px 10px;
+}
+
+.payslip-table td {
+  padding: 10px 10px;
+  background: var(--line-soft);
+  font-weight: 500;
+}
+
+.payslip-table tr td:first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.payslip-table tr td:last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.payslip-table tr {
+  margin-bottom: 6px;
+}
+
+/* birthday list */
+.birthday-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.birthday-item:last-child {
+  margin-bottom: 0;
+}
+
+.birthday-item .bd-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.birthday-item button {
+  background: var(--gold);
+  color: #1B2331;
+  border: none;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* leave application — carousel of type cards */
+.leave-carousel-wrap {
+  position: relative;
+  margin-bottom: 26px;
+}
+
+.leave-carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 10px;
+  scroll-snap-type: x proximity;
+}
+
+.lc-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--navy);
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(14, 27, 61, 0.14);
+  z-index: 2;
+}
+
+.lc-nav-btn:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.lc-nav-left {
+  left: -14px;
+}
+
+.lc-nav-right {
+  right: -14px;
+}
+
+@media (max-width: 640px) {
+  .lc-nav-btn {
+    display: none;
+  }
+}
+
+.leave-carousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.leave-carousel::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+.leave-card {
+  scroll-snap-align: start;
+  flex: 0 0 240px;
+  background: var(--blue);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+}
+
+.leave-card .circle {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.leave-card .circle.zero {
+  color: var(--red);
+}
+
+.leave-card .lc-body {
+  min-width: 0;
+}
+
+.leave-card .lc-title {
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 10px;
+}
+
+.leave-card .lc-apply {
+  background: var(--gold);
+  color: #1B2331;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.leave-card .lc-unavailable {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* leave application form page */
+.leave-form-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 40px 44px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.leave-form-card .lf-head {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.leave-form-card .lf-head h2 {
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leave-form-card .lf-sub {
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  margin-bottom: 30px;
+}
+
+.readonly-field {
+  background: var(--line-soft);
+  color: var(--ink-soft);
+}
+
+.file-choose-btn {
+  display: inline-block;
+  background: var(--navy);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.file-choose-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+}
+
+.file-choose-row .file-name {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.lf-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.lf-actions .btn {
+  flex: 1;
+  justify-content: center;
+  padding: 14px;
+  font-size: 13.5px;
+}
+
+/* leave recall response page */
+.recall-msg-box {
+  background: var(--line-soft);
+  border-radius: var(--radius);
+  padding: 30px 32px;
+  margin-bottom: 24px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.recall-msg-box b {
+  color: var(--navy);
+}
+
+.recall-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 900px) {
+  .emp-main {
+    padding: 18px 16px 50px;
+  }
+
+  .emp-topnav {
+    padding: 0 16px;
+    gap: 14px;
+    height: auto;
+    min-height: 66px;
+    flex-wrap: nowrap;
+    position: relative;
+  }
+
+  .emp-menu-toggle {
+    display: flex;
+  }
+
+  .emp-tabs {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 14px 28px rgba(15, 25, 60, 0.16);
+    max-height: calc(100vh - 66px);
+    overflow-y: auto;
+    z-index: 29;
+  }
+
+  .emp-tabs.open {
+    display: flex;
+  }
+
+  .emp-tabs button {
+    width: 100%;
+    text-align: left;
+    padding: 15px 20px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--line-soft);
+    border-left: 3px solid transparent;
+    white-space: normal;
+  }
+
+  .emp-tabs button.active {
+    background: var(--canvas);
+    border-bottom-color: var(--line-soft);
+    border-left-color: var(--gold);
+  }
+
+  .emp-topnav .mark .image {
+    width: 130px;
+    height: 34px;
+  }
+
+  .leave-form-card {
+    padding: 26px 22px;
+  }
+
+  .profile-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-banner {
+    padding: 30px 24px;
+  }
+
+  .hero-banner h2 {
+    font-size: 22px;
+    max-width: none;
+  }
+
+  .hero-banner p {
+    max-width: none;
+  }
+
+  .panel-body,
+  .panel-body.pad0 {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 540px;
+  }
+
+  .uprof-upload-row .row {
+    flex-wrap: wrap;
+  }
+
+  .uprof-upload-row input[type="text"] {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emp-topnav {
+    padding: 0 12px;
+    min-height: 58px;
+  }
+
+  .emp-topnav .mark .image {
+    width: 100px;
+    height: 26px;
+  }
+
+  .emp-top-actions {
+    gap: 8px;
+  }
+
+  .top-round {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .emp-profile-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 12.5px;
+  }
+
+  .emp-main {
+    padding: 14px 12px 40px;
+  }
+
+  .crumb-bar {
+    padding: 12px 14px;
+    font-size: 12.5px;
+  }
+
+  .profile-banner {
+    padding: 20px 18px;
+  }
+
+  .profile-banner .name {
+    font-size: 18px;
+  }
+
+  .profile-banner .avatar {
+    width: 54px;
+    height: 54px;
+    font-size: 18px;
+  }
+
+  .profile-banner .edit-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .quick-actions {
+    gap: 8px;
+  }
+
+  .quick-actions button {
+    flex: 1 1 auto;
+    padding: 12px 14px;
+    text-align: center;
+  }
+
+  .leave-card {
+    flex-basis: 200px;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .leave-card .circle {
+    width: 50px;
+    height: 50px;
+    font-size: 19px;
+  }
+
+  .leave-form-card {
+    padding: 20px 16px;
+  }
+
+  .leave-form-card .lf-head h2 {
+    font-size: 18px;
+  }
+
+  .lf-actions {
+    flex-direction: column;
+  }
+
+  .uprof-personal-grid {
+    gap: 22px;
+  }
+
+  .payslip-letterhead {
+    text-align: left;
+  }
+
+  .payslip-letterhead .payslip-period {
+    text-align: left;
+  }
+
+  .recall-msg-box {
+    padding: 20px 18px;
+  }
+}
+
+
+/* ==========================================================================
+   Employee Profile — tab list buttons (light-panel variant of subnav)
+   ========================================================================== */
+
+.profile-tab-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--line-soft);
+  border: none;
+  color: var(--ink);
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.profile-tab-btn:hover {
+  background: var(--line);
+}
+
+.profile-tab-btn.active {
+  background: var(--gold);
+  color: #1B2331;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  align-items: start;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Payslip letterhead + net pay summary
+   ========================================================================== */
+
+.payslip-letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.payslip-letterhead .payslip-company .mark {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.payslip-letterhead .payslip-company .muted {
+  color: var(--ink-soft);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.payslip-letterhead .payslip-period {
+  text-align: right;
+}
+
+.payslip-letterhead .payslip-period .k {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.payslip-letterhead .payslip-period .v {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.payslip-netpay {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  text-align: right;
+}
+
+/* ==========================================================================
+   Print — payslip only
+   ========================================================================== */
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #payslipPrintArea,
+  #payslipPrintArea * {
+    visibility: visible;
+  }
+
+  #payslipPrintArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

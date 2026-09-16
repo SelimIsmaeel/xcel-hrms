@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XCELTECH — Register</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/auth.css">
+<link rel="stylesheet" href="css/employee.css">
+</head>
+<body>
+
+<div class="auth-shell">
+
+  <div class="auth-graphic">
+    <div class="mark"><span class="logo-mark"> <img src="/media/xceltech-high-resolution-logo-transparent 1 (1).png" alt=""></span></div>
+    <div class="pitch">
+      <span class="eyebrow"></span>
+      <h2>HR Management Platform</h2>
+      <p>Manage all employees, payrolls, and other human resource operations.</p>
+      <div class="cta-row">
+        <a href="#" class="cta-solid" id="learnMoreLink">Learn More</a>
+        <a href="#" class="cta-outline" id="ourFeaturesLink">Our Features</a>
+      </div>
+    </div>
+    <div style="height:1px;"></div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-form-inner" style="max-width:420px;">
+      <h1>Welcome to XCELTECH</h1>
+      <div class="sub">Register your account</div>
+
+      <div class="form-msg error" id="registerMsg"></div>
+
+      <form id="registerForm">
+        <div class="field-row">
+          <div class="field"><label for="firstName">First Name</label><input type="text" id="firstName" required></div>
+          <div class="field"><label for="lastName">Last Name</label><input type="text" id="lastName" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="regEmail">E-mail Address</label><input type="email" id="regEmail" required></div>
+          <div class="field"><label for="regPhone">Phone Number</label><input type="tel" id="regPhone" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="regPassword">Password</label><input type="password" id="regPassword" required minlength="6"></div>
+          <div class="field"><label for="confirmPassword">Confirm Password</label><input type="password" id="confirmPassword" required minlength="6"></div>
+        </div>
+
+        <div class="auth-check-row">
+          <input type="checkbox" id="newsletterOptIn">
+          <label for="newsletterOptIn">Yes, I want to receive XCELTECH newsletters</label>
+        </div>
+        <div class="auth-check-row">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">I agree to all the <a href="#" id="termsLink">Terms, Privacy Policy</a></label>
+        </div>
+
+        <button type="submit" class="auth-submit" style="margin-top:6px;">Create Account</button>
+      </form>
+
+      <div class="auth-footline">Already have an account? <a href="index.html">Log In</a></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/data.js"></script>
+<script>
+  document.getElementById('learnMoreLink').addEventListener('click', e => e.preventDefault());
+  document.getElementById('ourFeaturesLink').addEventListener('click', e => e.preventDefault());
+  document.getElementById('termsLink').addEventListener('click', e => e.preventDefault());
+
+  const msg = document.getElementById('registerMsg');
+
+  document.getElementById('registerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.classList.remove('show');
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    const agreed = document.getElementById('agreeTerms').checked;
+
+    if (password !== confirm) {
+      msg.textContent = 'Passwords don\'t match.';
+      msg.classList.add('show');
+      return;
+    }
+    if (!agreed) {
+      msg.textContent = 'You need to agree to the Terms and Privacy Policy to continue.';
+      msg.classList.add('show');
+      return;
+    }
+    if (DataManager.findByEmail(email)) {
+      msg.textContent = 'An account with this email already exists.';
+      msg.classList.add('show');
+      return;
+    }
+
+    DataManager.addUser({
+      name: (firstName + ' ' + lastName).trim(),
+      email, phone, password,
+      role: 'employee',
+      title: 'New Employee',
+      department: 'Unassigned',
+      status: 'active',
+      joined: new Date().toISOString().slice(0, 10),
+      newsletterOptIn: document.getElementById('newsletterOptIn').checked
+    });
+
+    sessionStorage.setItem('xt_just_registered', '1');
+    window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>

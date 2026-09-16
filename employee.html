@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XCELTECH — My workspace</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/employee.css">
+</head>
+
+<body>
+
+  <div class="emp-shell">
+    <div class="emp-topnav">
+      <div class="mark">
+        <div class="image">
+          <img src="/media/xceltech_blue-removebg-preview.png" alt="">
+        </div>
+      </div>
+
+      <button class="emp-menu-toggle" id="empMenuToggle" type="button" aria-label="Toggle menu" aria-expanded="false"
+        aria-controls="empTabs">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="emp-tabs" id="empTabs">
+        <button data-tab="dashboard" class="active">Dashboard</button>
+        <button data-tab="requests">Requests</button>
+        <button data-tab="payroll">Payroll</button>
+        <button data-tab="company">Company</button>
+        <button data-tab="extras">Extras</button>
+      </nav>
+
+      <div class="emp-top-actions">
+        <div class="top-dropdown-wrap">
+          <button class="top-round tr-navy" id="notifBtn" title="Notifications">&#128276;<span class="dot"
+              id="notifBadge">0</span></button>
+          <div class="top-dropdown" id="notifPanel"></div>
+        </div>
+        <div class="top-dropdown-wrap">
+          <button class="top-round tr-green" id="mailBtn" title="Mail">&#9993;<span class="dot"
+              id="mailBadge">0</span></button>
+          <div class="top-dropdown" id="mailPanel"></div>
+        </div>
+        <button class="emp-profile-btn" id="profileBtn">--</button>
+        <div class="emp-profile-menu" id="profileMenu">
+          <button id="menuMyProfile">My profile</button>
+          <button id="menuSignOut" class="danger">Sign out</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="emp-main" id="empMain"></main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/employee.js"></script>
+</body>
+
+</html>
