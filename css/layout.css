@@ -187,12 +187,14 @@
 }
 
 .sidebar-swatch-strip {
-  height: 10px;
-  display: flex;
+  height: 35px;
+  width: 250px;
+  /* display: flex; */
 }
 
-.sidebar-swatch-strip span {
-  flex: 1;
+.sidebar-swatch-strip img {
+  width: 100%;
+  height: auto;
 }
 
 .sidebar-backdrop {

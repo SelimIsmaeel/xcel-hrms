@@ -63,7 +63,7 @@ const DataManager = {
         id: "u-1",
         name: "Daniel Okafor",
         email: "daniel.okafor@xceltech.com",
-        password: "pass123",
+        password: "user123",
         role: "employee",
         title: "Frontend Engineer",
         department: "Engineering",
