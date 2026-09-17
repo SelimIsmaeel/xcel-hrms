@@ -1348,7 +1348,9 @@
 
     panel.innerHTML = `
       <div class="uprof-personal-card">
-        <button class="uprof-edit-btn" id="pdEditBtn" title="Edit">&#9998;<span>Edit</span></button>
+        <button class="uprof-edit-btn" id="pdEditBtn" title="Edit">
+          <img src="media/Vector (1).png" alt="">
+        <span>Edit</span></button>
         <div class="avatar big-avatar">${initials(u.name)}</div>
         <div class="k" style="margin-top:0;">Employee Name</div>
         <div class="v">${escapeHtml(u.name)}</div>

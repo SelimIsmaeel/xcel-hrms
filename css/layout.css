@@ -225,6 +225,46 @@
   flex-wrap: wrap;
 }
 
+.filter-pill {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  padding: 11px 18px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 0 14px;
+  border: 1px solid var(--line);
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 11px 8px;
+  font-size: 13.5px;
+  background: transparent;
+}
+
+.search-bar .sicon {
+  color: var(--ink-faint);
+  font-size: 15px;
+}
+
 .icon-btn {
   border: none;
   background: transparent;
@@ -269,6 +309,8 @@
 }
 
 @media (max-width: 640px) {
+
+
   .cand-search-bar {
     width: 100%;
   }
@@ -283,29 +325,29 @@
   }
 }
 
-.filter-pill {
-  background: var(--blue);
-  color: #fff;
-  border: none;
-  padding: 11px 18px;
-  border-radius: var(--radius);
-  font-size: 13.5px;
-  font-weight: 600;
+.topbar {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  white-space: nowrap;
+  /* align-items: center;
+    gap: 16px;
+    margin-bottom: 26px;
+    flex-wrap: wrap; */
 }
 
+
+
 .search-bar {
-  flex: 1;
-  min-width: 160px;
+  min-width: 10px;
+  /* display: none; */
+  /* flex: 1;
+  min-width: 50px;
   display: flex;
   align-items: center;
   background: var(--panel);
   border-radius: var(--radius);
   padding: 0 14px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line); */
 }
 
 .search-bar input {
@@ -1064,6 +1106,11 @@ textarea {
     transform: translateX(0);
   }
 
+  .sidebar-brand .image {
+    width: 350px;
+    height: 50px;
+  }
+
   .main {
     margin-left: 0;
     padding: 18px;
@@ -1080,6 +1127,12 @@ textarea {
 
   .subnav {
     flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    /* justify-content: ; */
+    align-items: center;
   }
 
   .menu-toggle {
@@ -1115,7 +1168,7 @@ textarea {
   }
 
   .topbar {
-    gap: 10px;
+    display: flex;
   }
 
   .top-actions {
@@ -1130,12 +1183,12 @@ textarea {
   }
 
   .filter-pill {
-    width: 100%;
-    justify-content: center;
+    display: none;
   }
 
   .search-bar {
     width: 100%;
+    /* display: none; */
   }
 
   .panel-head {
