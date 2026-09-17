@@ -33,8 +33,7 @@ const UI = {
     if (veil) veil.classList.remove("show");
   },
 
-  /** Simple informational modal with a single OK button.
-   *  bodyHtml may include basic markup (already escaped by the caller). */
+
   info(title, bodyHtml, onClose) {
     this._ensureModal();
     document.getElementById("uiModalTitle").textContent = title;
@@ -48,8 +47,6 @@ const UI = {
     });
   },
 
-  /** Numeric-input modal replacing prompt(). Calls onConfirm(value) if the
-   *  person confirms; does nothing on cancel. */
   promptNumber(title, labelText, defaultValue, onConfirm) {
     this._ensureModal();
     document.getElementById("uiModalTitle").textContent = title;
@@ -71,8 +68,6 @@ const UI = {
     });
   },
 
-  /** Two-button confirmation modal replacing confirm(). Calls onConfirm()
-   *  only if the person confirms. */
   confirm(title, bodyHtml, confirmLabel, onConfirm) {
     this._ensureModal();
     document.getElementById("uiModalTitle").textContent = title;
@@ -95,8 +90,6 @@ const UI = {
 
   _openDropdown: null,
 
-  /** Wires a top-round icon button to open/close an adjacent dropdown
-   *  panel, populating it fresh (via renderFn) each time it opens. */
   bindDropdown(buttonId, panelId, renderFn) {
     const btn = document.getElementById(buttonId);
     const panel = document.getElementById(panelId);

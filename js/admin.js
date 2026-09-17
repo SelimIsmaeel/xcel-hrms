@@ -706,31 +706,52 @@
       b.classList.toggle("active", b.dataset.perfTab === tab),
     );
     if (tab === "target") renderTargetSetup();
+    if (tab === "targets") renderAssignedTargets();
+    if (tab === "appraisals") renderAppraisals();
+    if (tab === "settings") renderPerfSettings();
+    if (tab === "reports") renderPerfReports();
   }
   perfTabButtons.forEach((b) =>
     b.addEventListener("click", () => showPerfTab(b.dataset.perfTab)),
   );
 
+  /* ---------- shared performance helpers ---------- */
+
+  function employeeList() {
+    return DataManager.getUsers().filter((u) => u.role === "employee");
+  }
+  function meterClass(pct) {
+    if (pct >= 75) return "good";
+    if (pct >= 40) return "warn";
+    return "bad";
+  }
+  function meterHtml(pct) {
+    return `<div class="perf-meter-row">
+      <div class="perf-meter"><div class="fill ${meterClass(pct)}" style="width:${pct}%"></div></div>
+      <span class="pct">${pct}%</span>
+    </div>`;
+  }
+  function userName(id) {
+    const u = DataManager.getUser(id);
+    return u ? u.name : "Unknown";
+  }
+
+  /* ---------- Tab 1: Target Setup ---------- */
+
   function renderTargetSetup() {
-    const employees = DataManager.getUsers().filter(
-      (u) => u.role === "employee",
-    );
+    const employees = employeeList();
     document.getElementById("tgEmployees").innerHTML = employees
       .map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`)
       .join("");
     renderTargetsList();
   }
+
   function renderTargetsList() {
     const targets = DataManager.getTargets();
     document.getElementById("targetsBody").innerHTML = targets.length
       ? targets
           .map((t) => {
-            const names = (t.employeeIds || [])
-              .map((id) => {
-                const u = DataManager.getUser(id);
-                return u ? u.name : "—";
-              })
-              .join(", ");
+            const names = (t.employeeIds || []).map(userName).join(", ");
             return `<tr>
         <td>${escapeHtml(t.title)}</td><td>${escapeHtml(t.kpiWeight)}</td><td>${escapeHtml(names || "—")}</td>
         <td>${formatDate(t.startDate)} – ${formatDate(t.endDate)}</td>
@@ -742,13 +763,20 @@
 
     document.querySelectorAll("[data-del-tg]").forEach((b) =>
       b.addEventListener("click", () => {
-        DataManager.deleteTarget(b.dataset.delTg);
-        renderTargetsList();
+        UI.confirm(
+          "Delete target",
+          "Deleting removes this target and every employee's reported progress on it.",
+          "Delete",
+          () => {
+            DataManager.deleteTarget(b.dataset.delTg);
+            renderTargetsList();
+          },
+        );
       }),
     );
   }
 
-  function saveTarget(resetOnly) {
+  function saveTarget() {
     const form = document.getElementById("targetForm");
     const msg = document.getElementById("targetMsg");
     if (!form.reportValidity()) return false;
@@ -760,14 +788,21 @@
       msg.classList.add("show");
       return false;
     }
+    const start = document.getElementById("tgStart").value;
+    const end = document.getElementById("tgEnd").value;
+    if (end < start) {
+      msg.textContent = "The end date can't be before the start date.";
+      msg.classList.add("show");
+      return false;
+    }
     msg.classList.remove("show");
     DataManager.addTarget({
       title: document.getElementById("tgTitle").value.trim(),
       kpiWeight: document.getElementById("tgWeight").value,
       description: document.getElementById("tgDesc").value.trim(),
       employeeIds,
-      startDate: document.getElementById("tgStart").value,
-      endDate: document.getElementById("tgEnd").value,
+      startDate: start,
+      endDate: end,
     });
     form.reset();
     renderTargetsList();
@@ -779,6 +814,532 @@
   document
     .getElementById("tgAddMoreBtn")
     .addEventListener("click", () => saveTarget());
+
+  /* ---------- Tab 2: Assigned targets (org-wide progress) ---------- */
+
+  function renderAssignedTargets() {
+    const empSelect = document.getElementById("tgFilterEmployee");
+    if (empSelect.options.length <= 1) {
+      empSelect.innerHTML =
+        `<option value="">All employees</option>` +
+        employeeList()
+          .map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`)
+          .join("");
+    }
+    const empFilter = empSelect.value;
+    const statusFilter = document.getElementById("tgFilterStatus").value;
+
+    // One row per employee-on-target, so progress is always per person.
+    const rows = [];
+    DataManager.getTargets().forEach((t) => {
+      if (statusFilter && (t.status || "active") !== statusFilter) return;
+      (t.employeeIds || []).forEach((uid) => {
+        if (empFilter && uid !== empFilter) return;
+        rows.push({ target: t, userId: uid });
+      });
+    });
+
+    document.getElementById("assignedTargetsBody").innerHTML = rows.length
+      ? rows
+          .map(({ target: t, userId }) => {
+            const prog = DataManager.getTargetProgress(t, userId);
+            const status = t.status || "active";
+            return `<tr>
+        <td class="who-cell"><div class="avatar">${initials(userName(userId))}</div>${escapeHtml(userName(userId))}</td>
+        <td>${escapeHtml(t.title)}${prog.note ? `<div class="desc">${escapeHtml(prog.note)}</div>` : ""}</td>
+        <td>${escapeHtml(t.kpiWeight)}</td>
+        <td style="min-width:150px;">${meterHtml(prog.percent)}<div class="desc">${prog.updated ? "Updated " + formatDate(prog.updated) : "No update yet"}</div></td>
+        <td>${formatDate(t.startDate)} – ${formatDate(t.endDate)}</td>
+        <td><span class="badge ${status}">${status}</span></td>
+        <td>
+          <button class="btn small blue" data-edit-progress="${t.id}" data-uid="${userId}">Progress</button>
+          <button class="btn small" data-toggle-tg="${t.id}">${status === "active" ? "Close" : "Reopen"}</button>
+        </td>
+      </tr>`;
+          })
+          .join("")
+      : `<tr><td colspan="7" class="empty-row">No targets match this filter.</td></tr>`;
+
+    document
+      .querySelectorAll("[data-edit-progress]")
+      .forEach((b) =>
+        b.addEventListener("click", () =>
+          openProgressModal(b.dataset.editProgress, b.dataset.uid),
+        ),
+      );
+    document.querySelectorAll("[data-toggle-tg]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const t = DataManager.getTarget(b.dataset.toggleTg);
+        if (!t) return;
+        DataManager.updateTarget(t.id, {
+          status: (t.status || "active") === "active" ? "closed" : "active",
+        });
+        renderAssignedTargets();
+      }),
+    );
+  }
+
+  document
+    .getElementById("tgFilterEmployee")
+    .addEventListener("change", renderAssignedTargets);
+  document
+    .getElementById("tgFilterStatus")
+    .addEventListener("change", renderAssignedTargets);
+  document
+    .getElementById("tgRefreshBtn")
+    .addEventListener("click", renderAssignedTargets);
+
+  /* ---------- progress modal (admin override) ---------- */
+
+  const progressModalVeil = document.getElementById("progressModalVeil");
+
+  function openProgressModal(targetId, userId) {
+    const t = DataManager.getTarget(targetId);
+    if (!t) return;
+    const prog = DataManager.getTargetProgress(t, userId);
+    document.getElementById("prTargetId").value = targetId;
+    document.getElementById("prUserId").value = userId;
+    document.getElementById("prPercent").value = prog.percent;
+    document.getElementById("prNote").value = prog.note || "";
+    document.getElementById("progressModalSub").textContent =
+      `${userName(userId)} — ${t.title}`;
+    progressModalVeil.classList.add("show");
+  }
+  function closeProgressModal() {
+    progressModalVeil.classList.remove("show");
+  }
+  document
+    .getElementById("progressModalClose")
+    .addEventListener("click", closeProgressModal);
+  document
+    .getElementById("progressCancelBtn")
+    .addEventListener("click", closeProgressModal);
+  progressModalVeil.addEventListener("click", (e) => {
+    if (e.target === progressModalVeil) closeProgressModal();
+  });
+  document.getElementById("progressSaveBtn").addEventListener("click", () => {
+    DataManager.setTargetProgress(
+      document.getElementById("prTargetId").value,
+      document.getElementById("prUserId").value,
+      document.getElementById("prPercent").value,
+      document.getElementById("prNote").value.trim(),
+    );
+    closeProgressModal();
+    renderAssignedTargets();
+  });
+
+  /* ---------- Tab 3: Appraisals ---------- */
+
+  const APPRAISAL_STATUS_LABEL = {
+    "self-pending": "Awaiting self-appraisal",
+    "review-pending": "Awaiting review",
+    completed: "Completed",
+  };
+
+  function renderAppraisals() {
+    const statusFilter = document.getElementById("apFilterStatus").value;
+    const list = DataManager.getAppraisals().filter(
+      (a) => !statusFilter || a.status === statusFilter,
+    );
+
+    document.getElementById("appraisalsBody").innerHTML = list.length
+      ? list
+          .map(
+            (a) => `<tr>
+        <td class="who-cell"><div class="avatar">${initials(userName(a.userId))}</div>${escapeHtml(userName(a.userId))}</td>
+        <td>${escapeHtml(a.cycle)}</td>
+        <td>${formatDate(a.periodStart)} – ${formatDate(a.periodEnd)}</td>
+        <td>${a.self ? a.self.score + "%" : "—"}</td>
+        <td>${a.status === "completed" ? `<strong>${a.finalScore}%</strong><div class="desc">${escapeHtml(a.rating || "")}</div>` : "—"}</td>
+        <td><span class="badge ${a.status}">${APPRAISAL_STATUS_LABEL[a.status] || a.status}</span></td>
+        <td>
+          <button class="btn small blue" data-review-ap="${a.id}">${a.status === "completed" ? "View" : "Review"}</button>
+          <button class="btn small danger" data-del-ap="${a.id}">Delete</button>
+        </td>
+      </tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="7" class="empty-row">No appraisals match this filter.</td></tr>`;
+
+    document
+      .querySelectorAll("[data-review-ap]")
+      .forEach((b) =>
+        b.addEventListener("click", () => openReviewModal(b.dataset.reviewAp)),
+      );
+    document.querySelectorAll("[data-del-ap]").forEach((b) =>
+      b.addEventListener("click", () =>
+        UI.confirm(
+          "Delete appraisal",
+          "This removes the appraisal and any self-assessment attached to it.",
+          "Delete",
+          () => {
+            DataManager.deleteAppraisal(b.dataset.delAp);
+            renderAppraisals();
+          },
+        ),
+      ),
+    );
+  }
+
+  document
+    .getElementById("apFilterStatus")
+    .addEventListener("change", renderAppraisals);
+
+  /* ---------- new appraisal cycle modal ---------- */
+
+  const appraisalModalVeil = document.getElementById("appraisalModalVeil");
+
+  function openAppraisalModal() {
+    document.getElementById("appraisalForm").reset();
+    document.getElementById("appraisalFormMsg").classList.remove("show");
+    document.getElementById("apEmployees").innerHTML = employeeList()
+      .map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`)
+      .join("");
+    appraisalModalVeil.classList.add("show");
+  }
+  function closeAppraisalModal() {
+    appraisalModalVeil.classList.remove("show");
+  }
+  document
+    .getElementById("newAppraisalBtn")
+    .addEventListener("click", openAppraisalModal);
+  document
+    .getElementById("appraisalModalClose")
+    .addEventListener("click", closeAppraisalModal);
+  document
+    .getElementById("appraisalCancelBtn")
+    .addEventListener("click", closeAppraisalModal);
+  appraisalModalVeil.addEventListener("click", (e) => {
+    if (e.target === appraisalModalVeil) closeAppraisalModal();
+  });
+
+  document.getElementById("appraisalSaveBtn").addEventListener("click", () => {
+    const form = document.getElementById("appraisalForm");
+    const msg = document.getElementById("appraisalFormMsg");
+    if (!form.reportValidity()) return;
+    const employeeIds = Array.from(
+      document.getElementById("apEmployees").selectedOptions,
+    ).map((o) => o.value);
+    if (!employeeIds.length) {
+      msg.textContent = "Select at least one employee for this cycle.";
+      msg.classList.add("show");
+      return;
+    }
+    const start = document.getElementById("apStart").value;
+    const end = document.getElementById("apEnd").value;
+    if (end < start) {
+      msg.textContent = "The period end can't be before the period start.";
+      msg.classList.add("show");
+      return;
+    }
+    const settings = DataManager.getPerfSettings();
+    const created = DataManager.addAppraisalCycle({
+      cycle: document.getElementById("apCycle").value.trim(),
+      periodStart: start,
+      periodEnd: end,
+      dueDate: document.getElementById("apDue").value,
+      employeeIds,
+      requireSelf: settings.requireSelfAppraisal,
+    });
+    closeAppraisalModal();
+    renderAppraisals();
+    UI.info(
+      "Cycle created",
+      `${created.length} appraisal${created.length === 1 ? "" : "s"} created. ${
+        settings.requireSelfAppraisal
+          ? "Employees can now fill their self-assessment."
+          : "They're queued for your review."
+      }`,
+    );
+  });
+
+  /* ---------- appraisal review modal ---------- */
+
+  const reviewModalVeil = document.getElementById("reviewModalVeil");
+
+  function openReviewModal(id) {
+    const a = DataManager.getAppraisal(id);
+    if (!a) return;
+    const readOnly = a.status === "completed";
+    const perfScore = DataManager.getPerformanceScore(a.userId);
+
+    document.getElementById("rvAppraisalId").value = id;
+    document.getElementById("reviewFormMsg").classList.remove("show");
+    document.getElementById("reviewModalTitle").textContent = readOnly
+      ? "Appraisal result"
+      : "Review appraisal";
+    document.getElementById("reviewModalSub").textContent =
+      `${userName(a.userId)} — ${a.cycle}`;
+
+    const selfHtml = a.self
+      ? `<div class="perf-review-block" style="border-top:none; padding-top:0;">
+          <div class="k">Self score</div><div class="v">${a.self.score}% — submitted ${formatDate(a.self.submitted)}</div>
+          <div class="k">Strengths</div><div class="v">${escapeHtml(a.self.strengths || "—")}</div>
+          <div class="k">Challenges</div><div class="v">${escapeHtml(a.self.challenges || "—")}</div>
+          <div class="k">Comments</div><div class="v">${escapeHtml(a.self.comments || "—")}</div>
+        </div>`
+      : `<div class="perf-note">No self-assessment submitted yet — you can still score this appraisal directly.</div>`;
+
+    document.getElementById("reviewSelfBlock").innerHTML =
+      selfHtml +
+      `<div class="perf-note" style="margin-bottom:14px;">Weighted target score for this employee: <strong>${perfScore.score}%</strong> across ${perfScore.breakdown.length} target(s).</div>`;
+
+    document.getElementById("rvRating").innerHTML =
+      DataManager.getPerfSettings()
+        .ratingBands.slice()
+        .sort((x, y) => y.min - x.min)
+        .map(
+          (b) =>
+            `<option value="${escapeHtml(b.label)}" ${a.rating === b.label ? "selected" : ""}>${escapeHtml(b.label)} (${b.min}%+)</option>`,
+        )
+        .join("");
+
+    document.getElementById("rvScore").value = a.review
+      ? a.review.score
+      : a.self
+        ? a.self.score
+        : perfScore.score;
+    document.getElementById("rvComments").value = a.review
+      ? a.review.comments
+      : "";
+
+    ["rvScore", "rvRating", "rvComments"].forEach((elId) => {
+      document.getElementById(elId).disabled = readOnly;
+    });
+    document.getElementById("reviewSaveBtn").style.display = readOnly
+      ? "none"
+      : "";
+    reviewModalVeil.classList.add("show");
+  }
+  function closeReviewModal() {
+    reviewModalVeil.classList.remove("show");
+  }
+  document
+    .getElementById("reviewModalClose")
+    .addEventListener("click", closeReviewModal);
+  document
+    .getElementById("reviewCancelBtn")
+    .addEventListener("click", closeReviewModal);
+  reviewModalVeil.addEventListener("click", (e) => {
+    if (e.target === reviewModalVeil) closeReviewModal();
+  });
+
+  document.getElementById("reviewSaveBtn").addEventListener("click", () => {
+    const msg = document.getElementById("reviewFormMsg");
+    const score = parseInt(document.getElementById("rvScore").value, 10);
+    if (isNaN(score) || score < 0 || score > 100) {
+      msg.textContent = "Enter a final score between 0 and 100.";
+      msg.classList.add("show");
+      return;
+    }
+    const comments = document.getElementById("rvComments").value.trim();
+    if (!comments) {
+      msg.textContent = "Add a short comment before publishing the result.";
+      msg.classList.add("show");
+      return;
+    }
+    msg.classList.remove("show");
+    DataManager.submitAppraisalReview(
+      document.getElementById("rvAppraisalId").value,
+      {
+        score,
+        rating: document.getElementById("rvRating").value,
+        comments,
+        reviewer: currentUser.name,
+      },
+    );
+    closeReviewModal();
+    renderAppraisals();
+  });
+
+  /* ---------- Tab 4: Settings ---------- */
+
+  function renderPerfSettings() {
+    const s = DataManager.getPerfSettings();
+    document.getElementById("psReviewPeriod").value = s.reviewPeriod;
+    document.getElementById("psRequireSelf").value = s.requireSelfAppraisal
+      ? "yes"
+      : "no";
+    document.getElementById("psAllowEdits").value = s.allowProgressEdits
+      ? "yes"
+      : "no";
+    renderBands(s.ratingBands);
+  }
+
+  function renderBands(bands) {
+    document.getElementById("perfBandsList").innerHTML = bands
+      .slice()
+      .sort((a, b) => b.min - a.min)
+      .map(
+        (b, i) => `
+      <div class="perf-band-row" data-band-row="${i}">
+        <input type="number" min="0" max="100" value="${b.min}" data-band-min>
+        <input type="text" value="${escapeHtml(b.label)}" data-band-label>
+        <button class="btn small danger" data-remove-band="${i}">Remove</button>
+      </div>`,
+      )
+      .join("");
+
+    document.querySelectorAll("[data-remove-band]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const rows = collectBands();
+        if (rows.length <= 1) {
+          UI.info("Rating bands", "Keep at least one rating band.");
+          return;
+        }
+        rows.splice(parseInt(b.dataset.removeBand, 10), 1);
+        renderBands(rows);
+      }),
+    );
+  }
+
+  function collectBands() {
+    return Array.from(document.querySelectorAll("[data-band-row]")).map(
+      (row) => ({
+        min: parseInt(row.querySelector("[data-band-min]").value, 10) || 0,
+        label: row.querySelector("[data-band-label]").value.trim() || "Unrated",
+      }),
+    );
+  }
+
+  document.getElementById("addBandBtn").addEventListener("click", () => {
+    const bands = collectBands();
+    bands.push({ min: 0, label: "New band" });
+    renderBands(bands);
+  });
+
+  document
+    .getElementById("savePerfSettingsBtn")
+    .addEventListener("click", () => {
+      DataManager.savePerfSettings({
+        reviewPeriod: document.getElementById("psReviewPeriod").value,
+        requireSelfAppraisal:
+          document.getElementById("psRequireSelf").value === "yes",
+        allowProgressEdits:
+          document.getElementById("psAllowEdits").value === "yes",
+        ratingBands: collectBands(),
+      });
+      const msg = document.getElementById("perfSettingsMsg");
+      msg.textContent = "Settings saved.";
+      msg.classList.add("show");
+      setTimeout(() => msg.classList.remove("show"), 2500);
+      renderPerfSettings();
+    });
+
+  /* ---------- Tab 5: Reports ---------- */
+
+  function buildScorecard() {
+    return employeeList().map((u) => {
+      const perf = DataManager.getPerformanceScore(u.id);
+      const appraisals = DataManager.getAppraisalsForUser(u.id).filter(
+        (a) => a.status === "completed",
+      );
+      const last = appraisals[0] || null;
+      return {
+        user: u,
+        targetCount: perf.breakdown.length,
+        score: perf.score,
+        hasTargets: perf.hasTargets,
+        lastAppraisal: last,
+      };
+    });
+  }
+
+  function renderPerfReports() {
+    const rows = buildScorecard();
+    const scored = rows.filter((r) => r.hasTargets);
+    const avg = scored.length
+      ? Math.round(scored.reduce((s, r) => s + r.score, 0) / scored.length)
+      : 0;
+    const appraisals = DataManager.getAppraisals();
+    const activeTargets = DataManager.getTargets().filter(
+      (t) => (t.status || "active") === "active",
+    ).length;
+
+    document.getElementById("perfReportStats").innerHTML = `
+      <div class="perf-report-card"><div class="n">${avg}%</div><div class="l">Average target score</div></div>
+      <div class="perf-report-card"><div class="n">${activeTargets}</div><div class="l">Active targets</div></div>
+      <div class="perf-report-card"><div class="n">${appraisals.filter((a) => a.status === "completed").length}</div><div class="l">Appraisals completed</div></div>
+      <div class="perf-report-card"><div class="n">${appraisals.filter((a) => a.status !== "completed").length}</div><div class="l">Appraisals outstanding</div></div>
+    `;
+
+    document.getElementById("perfScorecardBody").innerHTML = rows.length
+      ? rows
+          .sort((a, b) => b.score - a.score)
+          .map(
+            (r) => `<tr>
+        <td class="who-cell"><div class="avatar">${initials(r.user.name)}</div>${escapeHtml(r.user.name)}</td>
+        <td>${escapeHtml(r.user.department || "—")}</td>
+        <td>${r.targetCount}</td>
+        <td style="min-width:150px;">${r.hasTargets ? meterHtml(r.score) : `<span class="muted">No targets</span>`}</td>
+        <td>${r.lastAppraisal ? `${r.lastAppraisal.finalScore}% <div class="desc">${escapeHtml(r.lastAppraisal.cycle)}</div>` : "—"}</td>
+        <td>${r.hasTargets ? `<span class="badge rating">${escapeHtml(DataManager.getRatingForScore(r.score))}</span>` : "—"}</td>
+      </tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="6" class="empty-row">No employees on record yet.</td></tr>`;
+
+    const byDept = {};
+    rows.forEach((r) => {
+      if (!r.hasTargets) return;
+      const d = r.user.department || "Unassigned";
+      byDept[d] = byDept[d] || [];
+      byDept[d].push(r.score);
+    });
+    const deptKeys = Object.keys(byDept);
+    document.getElementById("perfDeptAverages").innerHTML = deptKeys.length
+      ? deptKeys
+          .map((d) => {
+            const list = byDept[d];
+            const dAvg = Math.round(
+              list.reduce((s, n) => s + n, 0) / list.length,
+            );
+            return `<div class="perf-dept-row">
+          <div class="name">${escapeHtml(d)}</div>
+          <div class="perf-meter"><div class="fill ${meterClass(dAvg)}" style="width:${dAvg}%"></div></div>
+          <div class="pct" style="min-width:44px; text-align:right; font-weight:700;">${dAvg}%</div>
+        </div>`;
+          })
+          .join("")
+      : `<div class="empty-row">No scored departments yet.</div>`;
+  }
+
+  document.getElementById("exportPerfBtn").addEventListener("click", () => {
+    const rows = buildScorecard();
+    const header = [
+      "Employee",
+      "Department",
+      "Targets",
+      "Target score (%)",
+      "Rating",
+      "Last appraisal cycle",
+      "Last appraisal score (%)",
+    ];
+    const csvRows = rows.map((r) => [
+      r.user.name,
+      r.user.department || "",
+      r.targetCount,
+      r.hasTargets ? r.score : "",
+      r.hasTargets ? DataManager.getRatingForScore(r.score) : "",
+      r.lastAppraisal ? r.lastAppraisal.cycle : "",
+      r.lastAppraisal ? r.lastAppraisal.finalScore : "",
+    ]);
+    const csv = [header]
+      .concat(csvRows)
+      .map((line) =>
+        line.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `xceltech-performance-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  });
 
   // ================= MESSAGES (announcements) =================
   function renderMessagesAnnouncements() {

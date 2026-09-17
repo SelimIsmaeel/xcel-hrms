@@ -6,10 +6,26 @@ const DB_KEYS = {
   announcements: "xt_announcements",
   attendance: "xt_attendance",
   targets: "xt_targets",
+  appraisals: "xt_appraisals",
+  perfSettings: "xt_perf_settings",
   jobs: "xt_jobs",
   candidates: "xt_candidates",
   session: "xt_session",
   seeded: "xt_seeded_v5",
+  perfSeeded: "xt_perf_seeded_v1",
+};
+
+const DEFAULT_PERF_SETTINGS = {
+  reviewPeriod: "Bi-annual",
+  requireSelfAppraisal: true,
+  allowProgressEdits: true,
+  ratingBands: [
+    { min: 90, label: "Outstanding" },
+    { min: 75, label: "Exceeds expectations" },
+    { min: 60, label: "Meets expectations" },
+    { min: 40, label: "Needs improvement" },
+    { min: 0, label: "Unsatisfactory" },
+  ],
 };
 
 const DataManager = {
@@ -340,7 +356,7 @@ const DataManager = {
     );
   },
 
-  /* ---------- leave types (policy/settings) ---------- */
+  /* leave types (policy/settings)  */
 
   getLeaveTypes() {
     return this._get(DB_KEYS.leaveTypes);
@@ -370,7 +386,7 @@ const DataManager = {
     );
   },
 
-  /* ---------- leave balances (per user, keyed by leave-type name) ---------- */
+  /* leave balance */
 
   getLeaveBalance(user, typeName) {
     if (user.leaveBalance && user.leaveBalance[typeName] !== undefined)
@@ -477,9 +493,6 @@ const DataManager = {
     return list[idx];
   },
 
-  /** Employee's response to a recall notice. approved=true confirms the
-   *  recall; approved=false declines it (with a reason) and reverts the
-   *  request back to 'approved' standing leave. */
   respondToRecall(id, approved, declineReason) {
     const list = this.getLeaveRequests();
     const idx = list.findIndex((l) => l.id === id);
@@ -505,7 +518,7 @@ const DataManager = {
     );
   },
 
-  /* ---------- announcements ---------- */
+  /* announcements  */
 
   getAnnouncements() {
     return this._get(DB_KEYS.announcements).sort(
@@ -529,7 +542,7 @@ const DataManager = {
     );
   },
 
-  /* ---------- attendance ---------- */
+  /*attendance -*/
 
   getAttendance() {
     return this._get(DB_KEYS.attendance);
@@ -578,17 +591,197 @@ const DataManager = {
     return list[idx];
   },
 
-  /* ---------- performance targets ---------- */
+  seedPerformance() {
+    if (localStorage.getItem(DB_KEYS.perfSeeded)) return;
+
+    const existing = this._get(DB_KEYS.targets);
+    if (!existing.length) {
+      const targets = [
+        {
+          id: "tg-1",
+          title: "Ship the employee self-service portal",
+          kpiWeight: "40%",
+          description:
+            "Deliver the new self-service portal to production with sign-off from HR.",
+          employeeIds: ["u-1", "u-2"],
+          startDate: "2026-07-01",
+          endDate: "2026-12-31",
+          status: "active",
+          created: "2026-07-01",
+          progress: {
+            "u-1": {
+              percent: 65,
+              note: "Auth and payroll screens done.",
+              updated: "2026-09-08",
+            },
+            "u-2": {
+              percent: 40,
+              note: "Design system in review.",
+              updated: "2026-09-05",
+            },
+          },
+        },
+        {
+          id: "tg-2",
+          title: "Reduce support response time to under 4 hours",
+          kpiWeight: "30%",
+          description:
+            "Average first-response time on internal HR tickets across the quarter.",
+          employeeIds: ["u-2", "u-3"],
+          startDate: "2026-07-01",
+          endDate: "2026-09-30",
+          status: "active",
+          created: "2026-07-01",
+          progress: {
+            "u-3": {
+              percent: 80,
+              note: "Averaging 3h 20m this month.",
+              updated: "2026-09-10",
+            },
+          },
+        },
+        {
+          id: "tg-3",
+          title: "Close 15 new accounts in Q3",
+          kpiWeight: "30%",
+          description: "New signed accounts in the West Africa region.",
+          employeeIds: ["u-3"],
+          startDate: "2026-07-01",
+          endDate: "2026-09-30",
+          status: "active",
+          created: "2026-07-01",
+          progress: {
+            "u-3": {
+              percent: 55,
+              note: "8 of 15 closed.",
+              updated: "2026-09-12",
+            },
+          },
+        },
+      ];
+      this._set(DB_KEYS.targets, targets);
+    }
+
+    if (!this._get(DB_KEYS.appraisals).length) {
+      const appraisals = [
+        {
+          id: "ap-1",
+          userId: "u-1",
+          cycle: "H1 2026",
+          periodStart: "2026-01-01",
+          periodEnd: "2026-06-30",
+          dueDate: "2026-07-15",
+          status: "completed",
+          created: "2026-07-01",
+          self: {
+            score: 78,
+            strengths:
+              "Shipped every sprint commitment and mentored two interns.",
+            challenges: "Spread thin across two squads mid-cycle.",
+            comments: "Would like more ownership of architecture decisions.",
+            submitted: "2026-07-05",
+          },
+          review: {
+            score: 82,
+            comments:
+              "Consistent delivery and strong collaboration. Ready for more scope next cycle.",
+            rating: "Exceeds expectations",
+            reviewer: "Aman Admin",
+            reviewed: "2026-07-12",
+          },
+          finalScore: 82,
+          rating: "Exceeds expectations",
+        },
+        {
+          id: "ap-2",
+          userId: "u-2",
+          cycle: "H2 2026",
+          periodStart: "2026-07-01",
+          periodEnd: "2026-12-31",
+          dueDate: "2026-10-15",
+          status: "self-pending",
+          created: "2026-09-01",
+          self: null,
+          review: null,
+        },
+        {
+          id: "ap-3",
+          userId: "u-3",
+          cycle: "H2 2026",
+          periodStart: "2026-07-01",
+          periodEnd: "2026-12-31",
+          dueDate: "2026-10-15",
+          status: "self-pending",
+          created: "2026-09-01",
+          self: null,
+          review: null,
+        },
+      ];
+      this._set(DB_KEYS.appraisals, appraisals);
+    }
+
+    localStorage.setItem(DB_KEYS.perfSeeded, "true");
+  },
+
+  /* ---------- performance: settings ---------- */
+  getPerfSettings() {
+    const raw = localStorage.getItem(DB_KEYS.perfSettings);
+    if (!raw) return Object.assign({}, DEFAULT_PERF_SETTINGS);
+    try {
+      return Object.assign({}, DEFAULT_PERF_SETTINGS, JSON.parse(raw));
+    } catch (e) {
+      return Object.assign({}, DEFAULT_PERF_SETTINGS);
+    }
+  },
+  savePerfSettings(patch) {
+    const next = Object.assign({}, this.getPerfSettings(), patch);
+    localStorage.setItem(DB_KEYS.perfSettings, JSON.stringify(next));
+    return next;
+  },
+
+  getRatingForScore(score) {
+    const bands = this.getPerfSettings()
+      .ratingBands.slice()
+      .sort((a, b) => b.min - a.min);
+    const hit = bands.find((b) => score >= b.min);
+    return hit ? hit.label : bands.length ? bands[bands.length - 1].label : "—";
+  },
+
+  /*  performance: targets  */
 
   getTargets() {
     return this._get(DB_KEYS.targets);
   },
+  getTarget(id) {
+    return this.getTargets().find((t) => t.id === id) || null;
+  },
+  getTargetsForUser(userId) {
+    return this.getTargets()
+      .filter((t) => (t.employeeIds || []).includes(userId))
+      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+  },
   addTarget(t) {
     const list = this.getTargets();
-    const newT = Object.assign({ id: this._uid("tg") }, t);
+    const newT = Object.assign(
+      {
+        id: this._uid("tg"),
+        status: "active",
+        progress: {},
+        created: new Date().toISOString().slice(0, 10),
+      },
+      t,
+    );
     list.push(newT);
     this._set(DB_KEYS.targets, list);
     return newT;
+  },
+  updateTarget(id, patch) {
+    const list = this.getTargets();
+    const idx = list.findIndex((t) => t.id === id);
+    if (idx === -1) return null;
+    list[idx] = Object.assign({}, list[idx], patch);
+    this._set(DB_KEYS.targets, list);
+    return list[idx];
   },
   deleteTarget(id) {
     this._set(
@@ -596,8 +789,132 @@ const DataManager = {
       this.getTargets().filter((t) => t.id !== id),
     );
   },
+ 
+  getTargetProgress(target, userId) {
+    const p = (target.progress || {})[userId];
+    return p || { percent: 0, note: "", updated: null };
+  },
+  setTargetProgress(targetId, userId, percent, note) {
+    const list = this.getTargets();
+    const idx = list.findIndex((t) => t.id === targetId);
+    if (idx === -1) return null;
+    const progress = Object.assign({}, list[idx].progress);
+    const pct = Math.max(0, Math.min(100, Math.round(Number(percent) || 0)));
+    progress[userId] = {
+      percent: pct,
+      note: note || "",
+      updated: new Date().toISOString().slice(0, 10),
+    };
+    list[idx].progress = progress;
+    this._set(DB_KEYS.targets, list);
+    return list[idx];
+  },
+ 
+  weightValue(kpiWeight) {
+    return parseFloat(String(kpiWeight || "0").replace("%", "")) || 0;
+  },
 
-  /* ---------- jobs (recruitment) ---------- */
+  getPerformanceScore(userId) {
+    const targets = this.getTargetsForUser(userId);
+    if (!targets.length) {
+      return { score: 0, totalWeight: 0, breakdown: [], hasTargets: false };
+    }
+    let weighted = 0;
+    let totalWeight = 0;
+    const breakdown = targets.map((t) => {
+      const w = this.weightValue(t.kpiWeight) || 1;
+      const pct = this.getTargetProgress(t, userId).percent;
+      weighted += (pct * w) / 100;
+      totalWeight += w;
+      return { target: t, weight: w, percent: pct };
+    });
+    const score = totalWeight ? Math.round((weighted / totalWeight) * 100) : 0;
+    return { score, totalWeight, breakdown, hasTargets: true };
+  },
+
+  /* ---------- performance: appraisals ---------- */
+
+  getAppraisals() {
+    return this._get(DB_KEYS.appraisals).sort(
+      (a, b) => new Date(b.created || 0) - new Date(a.created || 0),
+    );
+  },
+  getAppraisal(id) {
+    return this.getAppraisals().find((a) => a.id === id) || null;
+  },
+  getAppraisalsForUser(userId) {
+    return this.getAppraisals().filter((a) => a.userId === userId);
+  },
+  /** Creates one appraisal record per selected employee for a cycle. */
+  addAppraisalCycle(cycle) {
+    const list = this._get(DB_KEYS.appraisals);
+    const created = [];
+    (cycle.employeeIds || []).forEach((userId) => {
+      const rec = {
+        id: this._uid("ap"),
+        userId,
+        cycle: cycle.cycle,
+        periodStart: cycle.periodStart,
+        periodEnd: cycle.periodEnd,
+        dueDate: cycle.dueDate,
+        status: cycle.requireSelf === false ? "review-pending" : "self-pending",
+        self: null,
+        review: null,
+        created: new Date().toISOString().slice(0, 10),
+      };
+      list.push(rec);
+      created.push(rec);
+    });
+    this._set(DB_KEYS.appraisals, list);
+    return created;
+  },
+  updateAppraisal(id, patch) {
+    const list = this._get(DB_KEYS.appraisals);
+    const idx = list.findIndex((a) => a.id === id);
+    if (idx === -1) return null;
+    list[idx] = Object.assign({}, list[idx], patch);
+    this._set(DB_KEYS.appraisals, list);
+    return list[idx];
+  },
+  deleteAppraisal(id) {
+    this._set(
+      DB_KEYS.appraisals,
+      this._get(DB_KEYS.appraisals).filter((a) => a.id !== id),
+    );
+  },
+  /** Employee side: submit the self-assessment and hand it to HR. */
+  submitSelfAppraisal(id, self) {
+    return this.updateAppraisal(id, {
+      status: "review-pending",
+      self: Object.assign(
+        { submitted: new Date().toISOString().slice(0, 10) },
+        self,
+      ),
+    });
+  },
+  /** Admin side: score the appraisal and publish the result to the employee. */
+  submitAppraisalReview(id, review) {
+    const score = Math.max(0, Math.min(100, Number(review.score) || 0));
+    return this.updateAppraisal(id, {
+      status: "completed",
+      finalScore: score,
+      rating: review.rating || this.getRatingForScore(score),
+      review: Object.assign(
+        { reviewed: new Date().toISOString().slice(0, 10) },
+        review,
+        { score },
+      ),
+    });
+  },
+  getPendingAppraisalForUser(userId) {
+    return (
+      this.getAppraisalsForUser(userId).find(
+        (a) => a.status === "self-pending",
+      ) || null
+    );
+  },
+
+  /* jobs (recruitment)  */
 
   getJobs() {
     return this._get(DB_KEYS.jobs);
@@ -631,7 +948,7 @@ const DataManager = {
     );
   },
 
-  /* ---------- candidates (recruitment) ---------- */
+  /* candidates (recruitment)  */
 
   getCandidates() {
     return this._get(DB_KEYS.candidates);
@@ -667,9 +984,6 @@ const DataManager = {
 
   /* ---------- payroll ---------- */
 
-  /** Derives a full payslip from the user's stored basic wage and any
-   *  admin-added earnings (allowances, bonuses, etc.), so admin and
-   *  employee views stay in sync. */
   getPayrollForUser(user) {
     const basicWage = (user.payroll && user.payroll.basicWage) || 150000;
     const earnings = (user.payroll && user.payroll.earnings) || [];
@@ -698,8 +1012,7 @@ const DataManager = {
     });
     return this.updateUser(userId, { payroll });
   },
-  /** Adds a named earning (e.g. "Housing Allowance") with an amount to a
-   *  user's payroll. Returns the updated user. */
+  /* Adds a named earning  */
   addEarning(userId, earning) {
     const user = this.getUser(userId);
     if (!user) return null;
@@ -723,7 +1036,7 @@ const DataManager = {
     return this.updateUser(userId, { payroll });
   },
 
-  /* ---------- extended employee profile (personal/contact/etc.) ---------- */
+  /* extended employee profile (personal/contact/etc.) */
 
   getProfileSection(user, section) {
     return (user.profile && user.profile[section]) || {};
@@ -736,11 +1049,7 @@ const DataManager = {
     return this.updateUser(userId, { profile });
   },
 
-  /* ---------- profile list sections (family, guarantors, education, etc.) ----------
-     Same `user.profile` bucket as above, but the section holds an array of
-     records instead of a flat object — used anywhere the profile page needs
-     more than one entry (family members, guarantors, education history,
-     bank accounts, uploaded documents). */
+  /*  profile list sections . */
 
   getProfileList(user, section) {
     return (user.profile && user.profile[section]) || [];
@@ -793,3 +1102,4 @@ const DataManager = {
 };
 
 DataManager.init();
+DataManager.seedPerformance();

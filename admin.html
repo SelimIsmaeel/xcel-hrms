@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/auth.css">
   <link rel="stylesheet" href="css/employee.css">
+  <link rel="stylesheet" href="css/performance.css">
 </head>
 
 <body>
@@ -62,8 +63,6 @@
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <main class="main">
-      <!-- <button class="menu-toggle" id="menuToggle">&#9776; Menu</button> -->
-
       <div class="topbar">
         <button class="menu-toggle" id="menuToggle">&#9776; Menu</button>
         <button class="filter-pill">All Candidates <span>&#8645;</span></button>
@@ -403,25 +402,169 @@
           </div>
         </div>
 
-        <div id="perfTab-targets" class="placeholder-card" style="display:none;">
-          <span class="picto">&#127919;</span>
-          <h3>Targets</h3>
-          <p>Assigned targets across the org will appear here once appraisal cycles begin.</p>
+        <!-- ----- Targets (org-wide progress) ----- -->
+        <div id="perfTab-targets" style="display:none;">
+          <div class="perf-toolbar">
+            <select id="tgFilterEmployee">
+              <option value="">All employees</option>
+            </select>
+            <select id="tgFilterStatus">
+              <option value="">All statuses</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+            </select>
+            <span class="spacer"></span>
+            <button class="btn small ghost" id="tgRefreshBtn">Refresh</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Assigned targets</h2>
+              <div class="desc">Progress reported by employees — adjust or close a target here</div>
+            </div>
+            <div class="panel-body pad0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Target</th>
+                    <th>Weight</th>
+                    <th>Progress</th>
+                    <th>Window</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="assignedTargetsBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div id="perfTab-appraisals" class="placeholder-card" style="display:none;">
-          <span class="picto">&#128203;</span>
-          <h3>Appraisals</h3>
-          <p>Appraisal cycles and review forms will appear here.</p>
+
+        <!-- ----- Appraisals ----- -->
+        <div id="perfTab-appraisals" style="display:none;">
+          <div class="perf-toolbar">
+            <select id="apFilterStatus">
+              <option value="">All statuses</option>
+              <option value="self-pending">Awaiting self-appraisal</option>
+              <option value="review-pending">Awaiting HR review</option>
+              <option value="completed">Completed</option>
+            </select>
+            <span class="spacer"></span>
+            <button class="btn primary" id="newAppraisalBtn">+ New appraisal cycle</button>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Appraisals</h2>
+              <div class="desc">Self-assessments come in from employees, you score and publish</div>
+            </div>
+            <div class="panel-body pad0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Cycle</th>
+                    <th>Period</th>
+                    <th>Self score</th>
+                    <th>Final score</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="appraisalsBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div id="perfTab-settings" class="placeholder-card" style="display:none;">
-          <span class="picto">&#9881;</span>
-          <h3>Settings</h3>
-          <p>Configure KPI scales, review periods, and approval chains here.</p>
+
+        <!-- ----- Settings ----- -->
+        <div id="perfTab-settings" style="display:none;">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Appraisal settings</h2>
+              <div class="desc">Applies to every new cycle and to how scores are rated</div>
+            </div>
+            <div class="panel-body" style="padding-top:20px;">
+              <div class="form-msg ok" id="perfSettingsMsg"></div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="psReviewPeriod">Review period</label>
+                  <select id="psReviewPeriod">
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Bi-annual</option>
+                    <option>Annual</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="psRequireSelf">Self-appraisal</label>
+                  <select id="psRequireSelf">
+                    <option value="yes">Required before HR review</option>
+                    <option value="no">Skip — HR scores directly</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="psAllowEdits">Employee progress updates</label>
+                <select id="psAllowEdits">
+                  <option value="yes">Employees can update their own target progress</option>
+                  <option value="no">Locked — admin updates progress only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Rating bands</h2>
+              <div class="desc">A score at or above the minimum earns that rating</div>
+            </div>
+            <div class="panel-body" style="padding-top:20px;">
+              <div id="perfBandsList"></div>
+              <div class="row-actions">
+                <button class="btn blue" id="addBandBtn">+ Add band</button>
+                <button class="btn primary" id="savePerfSettingsBtn">Save settings</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="perfTab-reports" class="placeholder-card" style="display:none;">
-          <span class="picto">&#128200;</span>
-          <h3>Reports</h3>
-          <p>Performance reports and KPI exports will appear here.</p>
+
+        <!-- ----- Reports ----- -->
+        <div id="perfTab-reports" style="display:none;">
+          <div class="perf-report-grid" id="perfReportStats"></div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Employee scorecard</h2>
+                <div class="desc">Weighted target score and latest appraisal outcome</div>
+              </div>
+              <button class="btn small blue" id="exportPerfBtn">&#11015; Export CSV</button>
+            </div>
+            <div class="panel-body pad0">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Targets</th>
+                    <th>Target score</th>
+                    <th>Last appraisal</th>
+                    <th>Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="perfScorecardBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Department averages</h2>
+            </div>
+            <div class="panel-body" style="padding-top:16px;" id="perfDeptAverages"></div>
+          </div>
         </div>
       </section>
 
@@ -607,6 +750,99 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- ===== Target progress modal ===== -->
+  <div class="modal-veil" id="progressModalVeil">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3>Update progress</h3>
+          <div class="modal-sub" id="progressModalSub"></div>
+        </div>
+        <button class="modal-close" id="progressModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="prTargetId">
+        <input type="hidden" id="prUserId">
+        <div class="field">
+          <label for="prPercent">Completion (%)</label>
+          <input type="number" id="prPercent" min="0" max="100" step="5">
+        </div>
+        <div class="field">
+          <label for="prNote">Progress note</label>
+          <textarea id="prNote" placeholder="What moved since the last update?"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="progressCancelBtn">Cancel</button>
+        <button class="btn primary" id="progressSaveBtn">Save progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== New appraisal cycle modal ===== -->
+  <div class="modal-veil" id="appraisalModalVeil">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3>New appraisal cycle</h3>
+          <div class="modal-sub">One appraisal is created for each employee selected</div>
+        </div>
+        <button class="modal-close" id="appraisalModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-msg error" id="appraisalFormMsg"></div>
+        <form id="appraisalForm">
+          <div class="field-row">
+            <div class="field"><label for="apCycle">Cycle name</label><input type="text" id="apCycle"
+                placeholder="e.g. H2 2026" required></div>
+            <div class="field"><label for="apDue">Due date</label><input type="date" id="apDue" required></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="apStart">Period start</label><input type="date" id="apStart" required></div>
+            <div class="field"><label for="apEnd">Period end</label><input type="date" id="apEnd" required></div>
+          </div>
+          <div class="field">
+            <label for="apEmployees">Employees</label>
+            <select id="apEmployees" multiple size="5"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="appraisalCancelBtn">Cancel</button>
+        <button class="btn primary" id="appraisalSaveBtn">Create cycle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Appraisal review modal ===== -->
+  <div class="modal-veil" id="reviewModalVeil">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3 id="reviewModalTitle">Review appraisal</h3>
+          <div class="modal-sub" id="reviewModalSub"></div>
+        </div>
+        <button class="modal-close" id="reviewModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-msg error" id="reviewFormMsg"></div>
+        <input type="hidden" id="rvAppraisalId">
+        <div id="reviewSelfBlock"></div>
+        <div class="field-row">
+          <div class="field"><label for="rvScore">Final score (0-100)</label><input type="number" id="rvScore" min="0"
+              max="100"></div>
+          <div class="field"><label for="rvRating">Rating</label><select id="rvRating"></select></div>
+        </div>
+        <div class="field"><label for="rvComments">Reviewer comments</label><textarea id="rvComments"
+            placeholder="What went well, what to focus on next cycle"></textarea></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn ghost" id="reviewCancelBtn">Cancel</button>
+        <button class="btn primary" id="reviewSaveBtn">Publish result</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== Employee modal ===== -->

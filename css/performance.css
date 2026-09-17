@@ -1,0 +1,418 @@
+/* ---------- score summary strip ---------- */
+.perf-summary {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 22px;
+    align-items: center;
+}
+
+.perf-ring {
+    --pct: 0;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    background:
+        conic-gradient(var(--ring-color, var(--blue)) calc(var(--pct) * 1%), var(--line-soft) 0);
+}
+
+.perf-ring .inner {
+    width: 98px;
+    height: 98px;
+    border-radius: 50%;
+    background: var(--panel);
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+
+.perf-ring .inner .n {
+    font-family: var(--font-head);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+}
+
+.perf-ring .inner .l {
+    font-size: 10.5px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-top: 4px;
+}
+
+.perf-summary-meta h3 {
+    font-size: 18px;
+    color: var(--navy);
+    margin-bottom: 6px;
+}
+
+.perf-summary-meta p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+}
+
+.perf-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.perf-chip {
+    background: var(--blue-wash);
+    color: var(--blue-deep);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.perf-chip.gold {
+    background: var(--amber-wash);
+    color: var(--amber-ink);
+}
+
+.perf-chip.green {
+    background: var(--green-wash);
+    color: var(--green-deep);
+}
+
+.perf-chip.red {
+    background: var(--red-wash);
+    color: var(--red-deep);
+}
+
+/* - progress meter (used in cards and table cells)  */
+
+.perf-meter {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--line-soft);
+    overflow: hidden;
+    min-width: 90px;
+}
+
+.perf-meter .fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--blue);
+    transition: width .3s ease;
+}
+
+.perf-meter .fill.good {
+    background: var(--green);
+}
+
+.perf-meter .fill.warn {
+    background: var(--gold);
+}
+
+.perf-meter .fill.bad {
+    background: var(--red);
+}
+
+.perf-meter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.perf-meter-row .pct {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--navy);
+    min-width: 38px;
+    text-align: right;
+}
+
+/* target cards (employee side)*/
+
+.perf-target-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    background: var(--panel);
+}
+
+.perf-target-card:last-child {
+    margin-bottom: 0;
+}
+
+.perf-target-card .pt-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.perf-target-card .pt-title {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--navy);
+}
+
+.perf-target-card .pt-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 5px;
+    line-height: 1.55;
+}
+
+.perf-target-card .pt-meta {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-top: 8px;
+}
+
+.perf-target-card .pt-meta span+span::before {
+    content: "·";
+    margin: 0 7px;
+}
+
+.perf-target-card .pt-bar {
+    margin-top: 14px;
+}
+
+.perf-target-card .pt-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.perf-note {
+    margin-top: 10px;
+    background: #F7FAFE;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+}
+
+/* ---------- appraisal cards ---------- */
+
+.perf-appraisal-card {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+}
+
+.perf-appraisal-card.done {
+    border-left-color: var(--green);
+}
+
+.perf-appraisal-card.await {
+    border-left-color: var(--gold);
+}
+
+.perf-appraisal-card .pa-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.perf-appraisal-card h4 {
+    font-family: var(--font-head);
+    font-size: 15px;
+    color: var(--navy);
+    margin: 0;
+}
+
+.perf-appraisal-card .pa-sub {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+}
+
+.perf-review-block {
+    margin-top: 12px;
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+}
+
+.perf-review-block .k {
+    font-size: 11px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+}
+
+.perf-review-block .v {
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/* ---------- status badges ---------- */
+
+.badge.self-pending {
+    background: var(--amber-wash);
+    color: var(--amber-ink);
+}
+
+.badge.review-pending {
+    background: var(--blue-wash);
+    color: var(--blue-deep);
+}
+
+.badge.completed {
+    background: var(--green-wash);
+    color: var(--green-deep);
+}
+
+.badge.closed {
+    background: #EEF1F6;
+    color: var(--ink-soft);
+}
+
+.badge.rating {
+    background: var(--navy);
+    color: #fff;
+}
+
+/* ---------- admin toolbars / filters ---------- */
+
+.perf-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.perf-toolbar select,
+.perf-toolbar input {
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+}
+
+.perf-toolbar .spacer {
+    flex: 1;
+}
+
+/* ---------- settings: rating bands ---------- */
+
+.perf-band-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.perf-band-row input[type="number"] {
+    width: 96px;
+}
+
+.perf-band-row input {
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 13px;
+}
+
+.perf-band-row input[type="text"] {
+    flex: 1;
+}
+
+/* ---------- reports ---------- */
+
+.perf-report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.perf-report-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+}
+
+.perf-report-card .n {
+    font-family: var(--font-head);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.1;
+}
+
+.perf-report-card .l {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+}
+
+.perf-dept-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.perf-dept-row:last-child {
+    border-bottom: none;
+}
+
+.perf-dept-row .name {
+    width: 190px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--navy);
+}
+
+.perf-dept-row .perf-meter {
+    flex: 1;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 720px) {
+    .perf-summary {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .perf-summary-meta {
+        text-align: center;
+    }
+
+    .perf-chip-row {
+        justify-content: center;
+    }
+
+    .perf-dept-row .name {
+        width: 120px;
+    }
+
+    .perf-toolbar select,
+    .perf-toolbar input {
+        flex: 1;
+        min-width: 140px;
+    }
+}

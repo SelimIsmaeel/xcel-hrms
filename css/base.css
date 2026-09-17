@@ -1,14 +1,3 @@
-/* ==========================================================================
-   XCELTECH — base.css
-   Design tokens (CSS variables), global reset, typography, reduced-motion.
-   Load this first on every page.
-   ========================================================================== */
-
-/* ==========================================================================
-   XCELTECH — Design tokens (v2, matched to product mockups)
-   Navy sidebar + gold active state, pale-blue canvas, blue pill actions.
-   ========================================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
@@ -75,8 +64,6 @@ svg {
   height: auto;
 }
 
-/* Touch targets: keep primary tappable controls comfortably above the
-   44px accessibility minimum on touch devices. */
 @media (max-width: 640px) {
 
   button,
@@ -105,15 +92,4 @@ a {
 button {
   font-family: var(--font-body);
   cursor: pointer;
-}
-
-
-
-/* ---------- Reduced motion ---------- */
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
 }

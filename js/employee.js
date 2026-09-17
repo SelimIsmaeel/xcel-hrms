@@ -91,6 +91,7 @@
       if (tab === "dashboard") navigate("overview", "dashboard");
       else if (tab === "requests") navigate("leaveApplication", "requests");
       else if (tab === "payroll") navigate("payroll", "payroll");
+      else if (tab === "performance") navigate("performance", "performance");
       else if (tab === "company") navigate("company", "company");
       else if (tab === "extras") navigate("extras", "extras");
       closeMobileNav();
@@ -105,7 +106,7 @@
 
   // ---------- router ----------
   let route = { page: "overview" };
-  let leaveCarouselTimer = null; // auto-advance interval for the leave-type carousel
+  let leaveCarouselTimer = null;
 
   function navigate(page, activeTab, params) {
     if (leaveCarouselTimer) {
@@ -125,6 +126,8 @@
     if (route.page === "leaveForm") return renderLeaveForm(route.type);
     if (route.page === "leaveRecall") return renderLeaveRecall();
     if (route.page === "payroll") return renderPayroll();
+    if (route.page === "performance") return renderPerformance();
+    if (route.page === "selfAppraisal") return renderSelfAppraisal();
     if (route.page === "company") return renderCompany();
     if (route.page === "extras") return renderExtras();
     if (route.page === "profile") return renderProfile();
@@ -588,8 +591,6 @@
     );
   }
 
-  /** Filters leave history to a given period and triggers a CSV download.
-   *  range: "current" | "previous" | "both" (previous+current) | "all" */
   function exportLeaveHistory(range) {
     const u = freshUser();
     const history = DataManager.getLeaveForUser(u.id);
@@ -638,8 +639,8 @@
     const nextBtn = document.getElementById("leaveCarouselNext");
     if (!track || !prevBtn || !nextBtn) return;
 
-    const AUTOPLAY_DELAY = 4000; // ms to wait before auto-advancing
-    const GAP = 16; // must match the .leave-carousel gap in employee.css
+    const AUTOPLAY_DELAY = 4000;
+    const GAP = 16; //
 
     function atStart() {
       return track.scrollLeft <= 1;
@@ -1018,6 +1019,290 @@
       });
   }
 
+  // ================= PERFORMANCE =================
+
+  function perfMeterClass(pct) {
+    if (pct >= 75) return "good";
+    if (pct >= 40) return "warn";
+    return "bad";
+  }
+  function perfMeterHtml(pct) {
+    return `<div class="perf-meter-row">
+      <div class="perf-meter"><div class="fill ${perfMeterClass(pct)}" style="width:${pct}%"></div></div>
+      <span class="pct">${pct}%</span>
+    </div>`;
+  }
+  function ringColor(pct) {
+    if (pct >= 75) return "var(--green)";
+    if (pct >= 40) return "var(--gold)";
+    return "var(--red)";
+  }
+
+  const APPRAISAL_STATUS_LABEL = {
+    "self-pending": "Self-appraisal due",
+    "review-pending": "With HR",
+    completed: "Completed",
+  };
+
+  function renderPerformance() {
+    const u = freshUser();
+    const settings = DataManager.getPerfSettings();
+    const perf = DataManager.getPerformanceScore(u.id);
+    const targets = DataManager.getTargetsForUser(u.id);
+    const appraisals = DataManager.getAppraisalsForUser(u.id);
+    const openAppraisal = appraisals.find((a) => a.status === "self-pending");
+    const activeCount = targets.filter(
+      (t) => (t.status || "active") === "active",
+    ).length;
+    const rating = perf.hasTargets
+      ? DataManager.getRatingForScore(perf.score)
+      : "Not yet rated";
+
+    empMain.innerHTML = `
+      <div class="page-head"><span class="picto">&#9878;</span><h1>Performance</h1></div>
+
+      <div class="panel">
+        <div class="panel-body" style="padding-top:22px;">
+          <div class="perf-summary">
+            <div class="perf-ring" style="--pct:${perf.score}; --ring-color:${ringColor(perf.score)};">
+              <div class="inner"><div><div class="n">${perf.score}%</div><div class="l">Score</div></div></div>
+            </div>
+            <div class="perf-summary-meta">
+              <h3>${escapeHtml(rating)}</h3>
+              <p>${
+                perf.hasTargets
+                  ? `Weighted across ${perf.breakdown.length} target${perf.breakdown.length === 1 ? "" : "s"} assigned to you. Keep your progress current so your review reflects the real picture.`
+                  : `No targets have been assigned to you yet. Once HR sets them, your score shows up here.`
+              }</p>
+              <div class="perf-chip-row">
+                <span class="perf-chip">${activeCount} active target${activeCount === 1 ? "" : "s"}</span>
+                <span class="perf-chip gold">${settings.reviewPeriod} reviews</span>
+                ${openAppraisal ? `<span class="perf-chip red">Self-appraisal due ${formatDate(openAppraisal.dueDate)}</span>` : `<span class="perf-chip green">No appraisal outstanding</span>`}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>My targets</h2>
+          <div class="desc">${settings.allowProgressEdits ? "Update your progress as you go" : "Progress is maintained by HR"}</div>
+        </div>
+        <div class="panel-body" style="padding-top:16px;">
+          ${
+            targets.length
+              ? targets.map((t) => targetCardHtml(t, u, settings)).join("")
+              : `<div class="empty-row">No targets assigned to you yet.</div>`
+          }
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Appraisals</h2>
+          <div class="desc">Your review history and anything waiting on you</div>
+        </div>
+        <div class="panel-body" style="padding-top:16px;">
+          ${
+            appraisals.length
+              ? appraisals.map(appraisalCardHtml).join("")
+              : `<div class="empty-row">No appraisal cycles yet.</div>`
+          }
+        </div>
+      </div>
+    `;
+
+    // progress editing (inline form inside the card)
+    empMain.querySelectorAll("[data-edit-target]").forEach((b) =>
+      b.addEventListener("click", () =>
+        navigate("performance", "performance", {
+          editTarget: b.dataset.editTarget,
+        }),
+      ),
+    );
+    empMain
+      .querySelectorAll("[data-cancel-target]")
+      .forEach((b) =>
+        b.addEventListener("click", () =>
+          navigate("performance", "performance"),
+        ),
+      );
+    empMain.querySelectorAll("[data-save-target]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.saveTarget;
+        const pct = document.getElementById("tpPercent_" + id).value;
+        const note = document.getElementById("tpNote_" + id).value.trim();
+        DataManager.setTargetProgress(id, u.id, pct, note);
+        navigate("performance", "performance");
+      }),
+    );
+
+    empMain.querySelectorAll("[data-start-appraisal]").forEach((b) =>
+      b.addEventListener("click", () =>
+        navigate("selfAppraisal", "performance", {
+          appraisalId: b.dataset.startAppraisal,
+        }),
+      ),
+    );
+  }
+
+  function targetCardHtml(t, u, settings) {
+    const prog = DataManager.getTargetProgress(t, u.id);
+    const status = t.status || "active";
+    const editing = route.editTarget === t.id;
+    const canEdit = settings.allowProgressEdits && status === "active";
+
+    const editForm = editing
+      ? `<div class="perf-note" style="background:var(--panel);">
+          <div class="field"><label for="tpPercent_${t.id}">Completion (%)</label>
+            <input type="number" id="tpPercent_${t.id}" min="0" max="100" step="5" value="${prog.percent}"></div>
+          <div class="field"><label for="tpNote_${t.id}">What's changed?</label>
+            <textarea id="tpNote_${t.id}" placeholder="Short note for your reviewer">${escapeHtml(prog.note || "")}</textarea></div>
+          <div class="pt-actions">
+            <button class="btn primary" data-save-target="${t.id}">Save progress</button>
+            <button class="btn ghost" data-cancel-target="${t.id}">Cancel</button>
+          </div>
+        </div>`
+      : "";
+
+    return `
+      <div class="perf-target-card">
+        <div class="pt-top">
+          <div>
+            <div class="pt-title">${escapeHtml(t.title)}</div>
+            <div class="pt-desc">${escapeHtml(t.description || "")}</div>
+            <div class="pt-meta">
+              <span>KPI weight ${escapeHtml(t.kpiWeight)}</span>
+              <span>${formatDate(t.startDate)} – ${formatDate(t.endDate)}</span>
+              <span>${prog.updated ? "Updated " + formatDate(prog.updated) : "Not updated yet"}</span>
+            </div>
+          </div>
+          <span class="badge ${status}">${status}</span>
+        </div>
+        <div class="pt-bar">${perfMeterHtml(prog.percent)}</div>
+        ${prog.note && !editing ? `<div class="perf-note">${escapeHtml(prog.note)}</div>` : ""}
+        ${
+          canEdit && !editing
+            ? `<div class="pt-actions"><button class="btn blue small" data-edit-target="${t.id}">Update progress</button></div>`
+            : ""
+        }
+        ${editForm}
+      </div>`;
+  }
+
+  function appraisalCardHtml(a) {
+    const cls =
+      a.status === "completed"
+        ? "done"
+        : a.status === "self-pending"
+          ? "await"
+          : "";
+    const body =
+      a.status === "completed"
+        ? `<div class="perf-review-block">
+            <div class="k">Final score</div>
+            <div class="v"><strong>${a.finalScore}%</strong> — ${escapeHtml(a.rating || "")}</div>
+            <div class="k">Reviewer comments</div>
+            <div class="v">${escapeHtml((a.review && a.review.comments) || "—")}</div>
+            ${a.self ? `<div class="k">Your self score</div><div class="v">${a.self.score}%</div>` : ""}
+          </div>`
+        : a.status === "review-pending"
+          ? `<div class="perf-note">Submitted ${a.self ? formatDate(a.self.submitted) : ""} — waiting on HR to review and publish your result.</div>`
+          : `<div class="perf-note">Your self-assessment is due by ${formatDate(a.dueDate)}.</div>
+             <div class="pt-actions" style="margin-top:12px;"><button class="btn primary" data-start-appraisal="${a.id}">Start self-appraisal</button></div>`;
+
+    return `
+      <div class="perf-appraisal-card ${cls}">
+        <div class="pa-head">
+          <div>
+            <h4>${escapeHtml(a.cycle)}</h4>
+            <div class="pa-sub">${formatDate(a.periodStart)} – ${formatDate(a.periodEnd)}</div>
+          </div>
+          <span class="badge ${a.status}">${APPRAISAL_STATUS_LABEL[a.status] || a.status}</span>
+        </div>
+        ${body}
+      </div>`;
+  }
+
+  // ---------- self-appraisal form ----------
+  function renderSelfAppraisal() {
+    const u = freshUser();
+    const a = DataManager.getAppraisal(route.appraisalId);
+    if (!a || a.userId !== u.id) return renderPerformance();
+    const perf = DataManager.getPerformanceScore(u.id);
+
+    empMain.innerHTML = `
+      <div class="crumb-bar"><b>Performance</b><span class="sep">›</span>Self-appraisal</div>
+      <div class="page-head"><span class="picto">&#128221;</span><h1>${escapeHtml(a.cycle)} self-appraisal</h1></div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Your assessment</h2>
+          <div class="desc">${formatDate(a.periodStart)} – ${formatDate(a.periodEnd)} · due ${formatDate(a.dueDate)}</div>
+        </div>
+        <div class="panel-body" style="padding-top:20px;">
+          <div class="form-msg error" id="saMsg"></div>
+          <div class="perf-note" style="margin-bottom:16px;">
+            Your weighted target score for this period is <strong>${perf.score}%</strong>. Use it as a starting point — HR reviews your answers before publishing a final score.
+          </div>
+          <div class="field">
+            <label for="saScore">How would you score yourself? (0-100)</label>
+            <input type="number" id="saScore" min="0" max="100" value="${perf.score}">
+          </div>
+          <div class="field">
+            <label for="saStrengths">What went well this cycle?</label>
+            <textarea id="saStrengths" placeholder="Wins, delivered work, things you're proud of"></textarea>
+          </div>
+          <div class="field">
+            <label for="saChallenges">What got in the way?</label>
+            <textarea id="saChallenges" placeholder="Blockers, gaps, things you'd do differently"></textarea>
+          </div>
+          <div class="field">
+            <label for="saComments">Anything else for your reviewer?</label>
+            <textarea id="saComments" placeholder="Support you need, goals for next cycle"></textarea>
+          </div>
+          <div class="row-actions">
+            <button class="btn ghost" id="saBackBtn">Back</button>
+            <button class="btn primary" id="saSubmitBtn">Submit self-appraisal</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document
+      .getElementById("saBackBtn")
+      .addEventListener("click", () => navigate("performance", "performance"));
+
+    document.getElementById("saSubmitBtn").addEventListener("click", () => {
+      const msg = document.getElementById("saMsg");
+      const score = parseInt(document.getElementById("saScore").value, 10);
+      const strengths = document.getElementById("saStrengths").value.trim();
+      if (isNaN(score) || score < 0 || score > 100) {
+        msg.textContent = "Give yourself a score between 0 and 100.";
+        msg.classList.add("show");
+        return;
+      }
+      if (!strengths) {
+        msg.textContent = "Add at least a line on what went well.";
+        msg.classList.add("show");
+        return;
+      }
+      msg.classList.remove("show");
+      DataManager.submitSelfAppraisal(a.id, {
+        score,
+        strengths,
+        challenges: document.getElementById("saChallenges").value.trim(),
+        comments: document.getElementById("saComments").value.trim(),
+      });
+      UI.info(
+        "Submitted",
+        "Your self-appraisal is with HR. You'll see the final score here once it's published.",
+        () => navigate("performance", "performance"),
+      );
+    });
+  }
+
   // ================= COMPANY =================
   function renderCompany() {
     const anns = DataManager.getAnnouncements();
@@ -1151,9 +1436,6 @@
     ["financial", "Financial Details"],
   ];
 
-  // Row layouts (array of rows; each row is 1 or 2 fields) for the
-  // list-backed sections. Shared by both the add/edit form and the save
-  // handler (which just flattens every field key in order).
   const NEXT_OF_KIN_ROWS = [
     [{ key: "name", label: "Full Name" }],
     [
