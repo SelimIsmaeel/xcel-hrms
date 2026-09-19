@@ -818,6 +818,13 @@ tbody tr:last-child td {
   color: #FFD3D3;
 }
 
+.actions-cells {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+
+}
+
 /* ---------- Forms ---------- */
 
 label {

@@ -952,7 +952,7 @@
         <td>${a.self ? a.self.score + "%" : "—"}</td>
         <td>${a.status === "completed" ? `<strong>${a.finalScore}%</strong><div class="desc">${escapeHtml(a.rating || "")}</div>` : "—"}</td>
         <td><span class="badge ${a.status}">${APPRAISAL_STATUS_LABEL[a.status] || a.status}</span></td>
-        <td>
+        <td class="actions-cells">
           <button class="btn small blue" data-review-ap="${a.id}">${a.status === "completed" ? "View" : "Review"}</button>
           <button class="btn small danger" data-del-ap="${a.id}">Delete</button>
         </td>
