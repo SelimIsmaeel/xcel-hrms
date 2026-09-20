@@ -391,7 +391,7 @@
 
 /* ---------- responsive ---------- */
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
     .perf-summary {
         grid-template-columns: 1fr;
         justify-items: center;

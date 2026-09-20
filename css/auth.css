@@ -250,7 +250,7 @@
   color: var(--navy);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .auth-graphic {
     display: none;
   }
@@ -260,7 +260,17 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .auth-form-side {
+    padding: 32px 20px;
+  }
+
+  .auth-form-inner {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
   .auth-form-side {
     padding: 28px 18px;
     align-items: flex-start;
