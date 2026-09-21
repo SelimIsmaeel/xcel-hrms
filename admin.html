@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/0c0fec81d8.js" crossorigin="anonymous"></script>
   <title>XCELTECH — Admin</title>
+  <link rel="stylesheet" href="all.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/auth.css">
@@ -33,21 +35,30 @@
 
       <nav class="sidebar-nav">
         <div class="nav-group-label">Features</div>
-        <button class="nav-item active" data-section="dashboard"><span class="ico">&#9632;</span>Dashboard</button>
+        <button class="nav-item active" data-section="dashboard"><span class="ico">
+            <img src="icons/bi--grid.svg" alt="">
+          </span>Dashboard</button>
         <button class="nav-item" data-section="messages"><span class="ico">&#9993;</span>Messages<span
             class="badge-count">13</span></button>
 
         <div class="nav-group-label">Recruitment</div>
-        <button class="nav-item" data-section="jobs"><span class="ico">&#128188;</span>Jobs</button>
-        <button class="nav-item" data-section="candidates"><span class="ico">&#128101;</span>Candidates</button>
-        <button class="nav-item" data-section="resumes"><span class="ico">&#128196;</span>Resumes</button>
+        <button class="nav-item" data-section="jobs"><span class="ico"> <i class="fa-solid fa-briefcase"></i>
+          </span>Jobs</button>
+        <button class="nav-item" data-section="candidates"><span class="ico"> <i class="fa-solid fa-graduation-cap"></i>
+          </span>Candidates</button>
+        <button class="nav-item" data-section="resumes"><span class="ico"> <img src="icons/tools.svg"
+              alt=""></span>Resumes</button>
 
         <div class="nav-group-label">Organization</div>
-        <button class="nav-item" data-section="employees"><span class="ico">&#128100;</span>Employee Management</button>
-        <button class="nav-item" data-section="leave"><span class="ico">&#128214;</span>Leave Management</button>
+        <button class="nav-item" data-section="employees"><span class="ico"> <img src="icons/office-employee.svg"
+              alt=""></span>Employee Management</button>
+        <button class="nav-item" data-section="leave"><span class="ico"> <i
+              class="fa-solid fa-person-walking-arrow-right"></i> </span>Leave Management</button>
         <button class="nav-item" data-section="performance"><span class="ico">&#9878;</span>Performance
           Management</button>
-        <button class="nav-item" data-section="payroll"><span class="ico">&#128179;</span>Payroll Management</button>
+        <button class="nav-item" data-section="payroll"><span class="ico"> <img src="icons/payment.svg"
+              alt=""></span>Payroll
+          Management</button>
       </nav>
 
       <div class="sidebar-foot">
@@ -55,9 +66,7 @@
       </div>
       <div class="sidebar-swatch-strip">
         <img src="media/image 1.svg" alt="">
-        <!-- <span style="background:#D64545;"></span><span style="background:#F5A623;"></span>
-        <span style="background:#1F3C88;"></span><span style="background:#17306E;"></span>
-        <span style="background:#2E8B3D;"></span><span style="background:#0E1B3D;"></span> -->
+
       </div>
     </aside>
 
@@ -69,17 +78,18 @@
         <button class="filter-pill">All Candidates <span>&#8645;</span></button>
         <div class="search-bar" id="topSearchWrap">
           <input type="text" id="topSearchInput" placeholder="Search employees, jobs, candidates..." autocomplete="off">
-          <span class="sicon">&#128269;</span>
+          <span class="sicon"><i class="fa-solid fa-magnifying-glass"></i></span>
           <div class="top-dropdown search-dropdown" id="topSearchPanel"></div>
         </div>
         <div class="top-actions">
           <div class="top-dropdown-wrap">
-            <button class="top-round tr-navy" id="notifBtn" title="Notifications">&#128276;<span class="dot"
-                id="notifBadge">0</span></button>
+            <button class="top-round tr-navy" id="notifBtn" title="Notifications"><i
+                class="fa-regular fa-bell"></i><span class="dot" id="notifBadge">0</span></button>
             <div class="top-dropdown" id="notifPanel"></div>
           </div>
           <div class="top-dropdown-wrap">
-            <button class="top-round tr-gold" id="settingsBtn" title="Settings">&#128295;</button>
+            <button class="top-round tr-gold" id="settingsBtn" title="Settings"> <i
+                class="fa-solid fa-wrench"></i></button>
             <div class="top-dropdown" id="settingsPanel"></div>
           </div>
           <div class="top-dropdown-wrap">
