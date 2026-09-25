@@ -469,7 +469,7 @@
         <div class="panel-head">
           <h2>Leave History</h2>
           <div class="actions-dd" id="leaveExportDd">
-            <button class="btn primary small" id="exportOwnLeaveBtn" type="button">Export &#8964;</button>
+            <button class="btn primary small" id="exportOwnLeaveBtn" type="button">Export <img src="media/chevron-circle-down.png" alt=""></button>
             <div class="actions-dd-menu" id="leaveExportMenu">
               <button data-export-range="current">This year (${EXPORT_CURRENT_YEAR})</button>
               <button data-export-range="previous">Last year (${EXPORT_PREVIOUS_YEAR})</button>
@@ -494,7 +494,7 @@
                   <td>${escapeHtml(l.category || l.reason || "—")}</td>
                   <td>
                     <div class="actions-dd">
-                      <button class="btn blue small" data-toggle-dd="${l.id}">Actions &#8964;</button>
+                      <button class="btn blue small" data-toggle-dd="${l.id}">Actions <img src="media/chevron-circle-down.png" alt=""></button>
                       <div class="actions-dd-menu" id="dd-${l.id}">
                         <button data-view="${l.id}">View Details</button>
                         ${l.status === "pending" ? `<button data-cancel="${l.id}" class="warn">Cancel Request</button>` : ""}

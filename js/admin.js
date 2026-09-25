@@ -228,12 +228,12 @@
         </td>
         <td>${escapeHtml(u.department || "—")}</td>
         <td>${escapeHtml(u.title || "—")}</td>
-        <td>${u.role === "subadmin" ? '<span class="badge admin">Sub-admin</span>' : "Employee"}</td>
+        <td>${u.role === "subadmin" ? `<span class="badge admin"> Sub admin</span>` : "Employee"}</td>
         <td>${formatDate(u.joined)}</td>
         <td><span class="badge ${u.status}">${u.status}</span></td>
         <td class="row-actions">
           <div class="actions-dd">
-            <button class="btn blue small" data-toggle-emp-dd="${u.id}">Actions &#8964;</button>
+            <button class="btn blue small" data-toggle-emp-dd="${u.id}">Actions <img src="media/chevron-circle-down.png" alt=""></button>
             <div class="actions-dd-menu" id="emp-dd-${u.id}">
               <button data-view-profile="${u.id}">View Profile</button>
               <button data-edit="${u.id}">Edit Profile</button>
@@ -1573,8 +1573,6 @@
     const candidates = DataManager.getCandidates();
     const jobs = DataManager.getJobs();
 
-    // Keep the "applying for" filter in sync with current jobs, without
-    // losing whatever the admin already had selected.
     const jobFilterSelect = document.getElementById("candJobFilter");
     const prevJobFilter = jobFilterSelect.value;
     jobFilterSelect.innerHTML =

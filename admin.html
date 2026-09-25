@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://kit.fontawesome.com/0c0fec81d8.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/dist/boxicons.js"
+    integrity="sha512-kWH92pHUC/rcjpSMu19lT+H6TlZwZCAftg9AuSw+AVYSdEKSlXXB8o6g12mg5f+Pj5xO40A7ju2ot/VdodCthw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <title>XCELTECH — Admin</title>
   <link rel="stylesheet" href="all.css">
   <link rel="stylesheet" href="css/base.css">
@@ -36,7 +39,8 @@
       <nav class="sidebar-nav">
         <div class="nav-group-label">Features</div>
         <button class="nav-item active" data-section="dashboard"><span class="ico">
-            <img src="icons/bi--grid.svg" alt="">
+            <box-icon name='grid-alt'></box-icon>
+            <!-- <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAhElEQVR4AeyTwQ6AIAiGpQdrdeit26wnIzjYxI3ioByYTA7qN3/9hSUNjmACiJhRj1zcJOSm1MbLMd9atPGikvXeqjC8XHOpFWCga06BXzvdLbo+rnRWe1ZOVhEA7KDHUQQIMXHM+1pErTk7mW0X6fsHQrrTJN4LrB1q5aJ1cqfCEcc8AAAA///4xHgsAAAABklEQVQDAIVNiDG2IyGNAAAAAElFTkSuQmCC" /> -->
           </span>Dashboard</button>
         <button class="nav-item" data-section="messages"><span class="ico">&#9993;</span>Messages<span
             class="badge-count">13</span></button>
@@ -46,18 +50,18 @@
           </span>Jobs</button>
         <button class="nav-item" data-section="candidates"><span class="ico"> <i class="fa-solid fa-graduation-cap"></i>
           </span>Candidates</button>
-        <button class="nav-item" data-section="resumes"><span class="ico"> <img src="icons/tools.svg"
-              alt=""></span>Resumes</button>
-
+        <!-- <button class="nav-item" data-section="resumes"><span class="ico">
+            <img src="icons/tools.svg" alt="" class="hi-icons">
+          </span>Resumes</button> -->
         <div class="nav-group-label">Organization</div>
-        <button class="nav-item" data-section="employees"><span class="ico"> <img src="icons/office-employee.svg"
-              alt=""></span>Employee Management</button>
+        <button class="nav-item" data-section="employees"><span class="ico"> <i class="fa-solid fa-users"></i>
+          </span>Employee Management</button>
         <button class="nav-item" data-section="leave"><span class="ico"> <i
               class="fa-solid fa-person-walking-arrow-right"></i> </span>Leave Management</button>
         <button class="nav-item" data-section="performance"><span class="ico">&#9878;</span>Performance
           Management</button>
-        <button class="nav-item" data-section="payroll"><span class="ico"> <img src="icons/payment.svg"
-              alt=""></span>Payroll
+        <button class="nav-item" data-section="payroll"><span class="ico"> <i class="fa-regular fa-credit-card"></i>
+          </span>Payroll
           Management</button>
       </nav>
 
@@ -88,8 +92,8 @@
             <div class="top-dropdown" id="notifPanel"></div>
           </div>
           <div class="top-dropdown-wrap">
-            <button class="top-round tr-gold" id="settingsBtn" title="Settings"> <i
-                class="fa-solid fa-wrench"></i></button>
+            <button class="top-round tr-gold" id="settingsBtn" title="Settings"> <i class="fa-solid fa-wrench"></i>
+            </button>
             <div class="top-dropdown" id="settingsPanel"></div>
           </div>
           <div class="top-dropdown-wrap">
@@ -187,6 +191,7 @@
           </div>
         </div>
       </section>
+
 
       <!-- ===== LEAVE MANAGEMENT ===== -->
       <section id="section-leave" style="display:none;">
